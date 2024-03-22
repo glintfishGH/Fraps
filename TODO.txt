@@ -1,0 +1,7 @@
+- Rewrite / optimize xml parsing
+	- As its own class(?)
+- Add other states
+- Add alphabet
+- Fix offset editor
+- Add cameras
+	- Add UI
