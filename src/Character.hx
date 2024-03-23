@@ -39,13 +39,13 @@ class Character extends Bitmap {
 
         switch(xml.substring(0, xml.length - 4)) {
             case "BOYFRIEND": 
-                getAnimRewrite(["BF idle dance", "BF NOTE LEFT", "BF NOTE DOWN", "BF NOTE UP", "BF NOTE RIGHT"]);
-            case "PICO":
-                getAnimRewrite(["Pico Idle Dance", "Pico NOTE LEFT", "Pico Down Note", "pico Up note", "Pico Note Right"]);
+                getAnim(["BF idle dance", "BF NOTE LEFT", "BF NOTE DOWN", "BF NOTE UP", "BF NOTE RIGHT"]);
+            case "DADDY_DEAREST":
+                getAnim(["Dad idle dance", "Dad Sing Note LEFT", "Dad Sing Note DOWN", "Dad Sing Note UP", "Dad Sing Note RIGHT"]);
             case "gfDanceTitle":
-                getAnimRewrite(["gfDance"]);
+                getAnim(["gfDance"]);
             default:
-                getAnimRewrite(["BF idle dance", "BF NOTE LEFT", "BF NOTE DOWN", "BF NOTE UP", "BF NOTE RIGHT"]);
+                getAnim(["BF idle dance", "BF NOTE LEFT", "BF NOTE DOWN", "BF NOTE UP", "BF NOTE RIGHT"]);
         }
         
         animation = new Anim(idleArray, 24, this);
@@ -56,7 +56,7 @@ class Character extends Bitmap {
      * Get animations from XML. USE THE FOLLOWING FORMAT: IDLE, UP, DOWN, LEFT, RIGHT, UP MISS, DOWN MISS, ...
      * @param animNames Array of animation names from the XML
      */
-    private function getAnimRewrite(animNames:Array<String>) {
+    private function getAnim(animNames:Array<String>) {
         var offsets;
         
         if (File.exists("res/" + charNameIsolated + ".json")) {

@@ -26,11 +26,11 @@ class PlayState extends MusicBeatState {
     override function init() {
         super.init();
 
-        Conductor.bpm = 140;
+        Conductor.bpm = 100;
         Conductor.songPosition = 0;
 
-        sound = new Sound(new BytesFileEntry("res/music/freakyMenu.ogg", File.getBytes("res/music/freakyMenu.ogg")));
-        sound = Res.music.freakyMenu;
+        sound = new Sound(new BytesFileEntry("res/music/bop.ogg", File.getBytes("res/music/bop.ogg")));
+        // sound = Res.music.freakyMenu;
         sound.stop();
         sound.play(true);
 
@@ -77,7 +77,6 @@ class PlayState extends MusicBeatState {
     override function update(dt:Float) {
         super.update(dt);
 
-        stepHit();
 		if (Key.isPressed(Key.NUMPAD_SUB) || Key.isPressed((Key.QWERTY_MINUS)))
 		    Main.managerMasterVolume(-0.1);
 		else if (Key.isPressed(Key.NUMPAD_ADD))
@@ -120,17 +119,13 @@ class PlayState extends MusicBeatState {
             boyfriend.playAnim(note + 1); // we add one here, because note 0 for boyfriend.playAnim() is his idle, so we offset by one
         }
         else {
-            strum[note].playStrumAnim(note, true);
+            strum[note].playStrumAnim(note);
             opponent.playAnim(note + 1);
         }
     }
 
-    override function beatHit() {}
-
-    override function stepHit() {
-        if (curStep % 8 == 0) {
-            boyfriend.playAnim(0);
-            opponent.playAnim(0);
-        }
+    override function beatHit() {
+        boyfriend.playAnim(0);
+        opponent.playAnim(0);
     }
 }
