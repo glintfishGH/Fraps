@@ -1,3 +1,6 @@
+import backend.MusicBeatState;
+import backend.Conductor;
+import haxe.Timer;
 import hxd.Res;
 import haxe.Json;
 import hxd.File;
@@ -7,8 +10,14 @@ import h2d.Bitmap;
 
 
 class Character extends Bitmap {
+    /**
+     * Animation object. Used to... play animations.
+     */
     public var animation:Anim;
 
+    /**
+     * Contains all the animations for the character.
+     */
     public var animArray:Array<Array<Tile>> = [];
     
     var idleArray:Array<Tile> = [];
@@ -17,27 +26,43 @@ class Character extends Bitmap {
     var upNoteArray:Array<Tile> = [];
     var rightNoteArray:Array<Tile> = [];
 
+    /**
+     * The image / tile to use for this character.
+     */
     var image:Tile;
-    var _xml:Xml;
 
+    /**
+     * The XML file to parse.
+     */
+    var xml:Xml;
+
+    /**
+     * The characters name with no .xml extension.
+     * Set by using the `xml` param in the constructor.
+     * Probably a bad idea?
+     */
     var charNameIsolated:String;
 
+    /**
+     * If the character is playing an animation. Used for making the character play their idle after pressing a note.
+     */
     public var playingAnim:Bool;
 
-    public function new(x:Float, y:Float, image:Tile, ?xml:String, ?jsonOffsetFile:String) {
+    public function new(x:Float, y:Float, image:Tile, ?xmlPath:String, ?jsonOffsetFile:String) {
         super();
         this.x = x;
         this.y = y;
         this.image = image;
 
         initArrays();
-        charNameIsolated = xml;
-        xml += ".xml";
+        charNameIsolated = xmlPath;
+        xmlPath += ".xml";
+        trace(charNameIsolated, xmlPath);
 
-        var xmlPath = sys.io.File.getContent("res/" + xml);
-        _xml = Xml.parse(xmlPath).firstElement();
+        var xmlDirectory = sys.io.File.getContent("res/characters/" + xmlPath);
+        xml = Xml.parse(xmlDirectory).firstElement();
 
-        switch(xml.substring(0, xml.length - 4)) {
+        switch(charNameIsolated) {
             case "BOYFRIEND": 
                 getAnim(["BF idle dance", "BF NOTE LEFT", "BF NOTE DOWN", "BF NOTE UP", "BF NOTE RIGHT"]);
             case "DADDY_DEAREST":
@@ -59,30 +84,40 @@ class Character extends Bitmap {
     private function getAnim(animNames:Array<String>) {
         var offsets;
         
-        if (File.exists("res/" + charNameIsolated + ".json")) {
-            trace("checking for actual json offset");
-            offsets = Json.parse(sys.io.File.getContent("res/" + charNameIsolated + ".json"));
+        // Checks if the offset file exists.
+        File.exists("res/characters/" + charNameIsolated + ".json") ? {
+            // It does, return it.
+            trace('Found offset file for $charNameIsolated');
+            offsets = Json.parse(sys.io.File.getContent("res/characters/" + charNameIsolated + ".json"));
+        } : {
+            // It does not, use placeholder offset file
+            trace('Couldn\'t find offset file for $charNameIsolated, using default.');
+            offsets = Json.parse(sys.io.File.getContent("res/characters/_po.json"));
         }
 
-        else {
-            trace("using po offsets");
-            offsets = Json.parse(sys.io.File.getContent("res/_po.json"));
-        }
-
-        for (child in _xml.elements()) {
+        /**
+         * Goes through the xml and gets the elements. 
+         * We then loop through the data of an element and assign it to a Tile
+         * We push that Tile into an array depending on the name.
+         * This is a *somewhat* okay way of adding the animations, since you only need to loop through it once.
+         */
+        for (child in xml.elements()) {
+            // Gets the animation name and cuts the 0s at the end
+            // TODO: Make this work differently, since some animations might have 5 or more leading 0s
             var childSubstr = child.get("name").substring(0, child.get("name").length - 4);
             trace(childSubstr);
 
             if (animNames.contains(childSubstr)) {
+                // Creates a frame from the xml data.
                 var frame:Tile = image.sub( Std.parseInt(child.get("x")), 
                                             Std.parseInt(child.get("y")), 
                                             Std.parseInt(child.get("width")), 
                                             Std.parseInt(child.get("height")),
                                            -Std.parseInt(child.get("frameX")),
                                            -Std.parseInt(child.get("frameY")) );
+                trace(frame.dx, frame.dy);
 
-                // GLINT YOU FUCKING HOMOSEXUAL???'????????????
-                // PLEASE FIX THIS LATER THIS IS ASS!!!!!!!!!!!!!!!
+                // This is ass but I don't know how to do a switch with array members
                 if (childSubstr == animNames[0]) {
                     idleArray.push(frame);
                     trace("pushed idle");
@@ -90,24 +125,28 @@ class Character extends Bitmap {
                 if (childSubstr == animNames[1]) {
                     frame.dx += offsets.leftOffset[0];
                     frame.dy += offsets.leftOffset[1];
+                    trace(frame.dx, frame.dy);
                     leftNoteArray.push(frame);
                     trace("pushed left");
                 }
                 if (childSubstr == animNames[2]) {
                     frame.dx += offsets.downOffset[0];
                     frame.dy += offsets.downOffset[1];
+                    trace(frame.dx, frame.dy);
                     downNoteArray.push(frame);
                     trace("pushed down");
                 }
                 if (childSubstr == animNames[3]) {
                     frame.dx += offsets.upOffset[0];
                     frame.dy += offsets.upOffset[1];
+                    trace(frame.dx, frame.dy);
                     upNoteArray.push(frame);
                     trace("pushed up");
                 }
                 if (childSubstr == animNames[4]) {
                     frame.dx += offsets.rightOffset[0];
                     frame.dy += offsets.rightOffset[1];
+                    trace(frame.dx, frame.dy);
                     rightNoteArray.push(frame);
                     trace("pushed right");
                 }
@@ -116,27 +155,33 @@ class Character extends Bitmap {
     }
 
     /**
-     * Play an animation!
+     * Plays an animation.
      * Runs off of animArray, which is an array of an array of tiles
      * To play an animation, feed the function an int
-     * IDLE - 0
      * LEFT - 1
      * DOWN - 2
      * UP - 3
      * RIGHT - 4
      * 
-     * TODO: add timer that falls back to idle? might do this after making the conductor.
-     * fps plus uses the amount of steps passed before returning to idle and i like that so i might yoink the idea
+     * TODO: add timer that falls back to idle? might do this after making the conductor. This also needs to be remade along with the way the animations are handled to allow you to pass in strings here for which animation to play
     **/ 
-    public function playAnim(_animArray:Int, ?looping:Bool = false, ?fps:Int = 24) {
+    public function playAnim(_animArray:Int, ?priority:Bool = true, ?looping:Bool = false, ?fps:Int = 24) {
         animation.play(animArray[_animArray]);
         animation.loop = looping;
         animation.speed = fps;
+        playingAnim = true;
     }
 
-    private function initArrays() {
-        animation = new Anim();
+    // Plays the idle animation.
+    public function dance() {
+        if (!playingAnim)
+            animation.play(animArray[0]);
+    }
 
+    /**
+     * Pushes the pose arrays to `animArray`. Makes the code slightly less cluttered.
+     */
+    private function initArrays() {
         animArray.push(idleArray);
         animArray.push(leftNoteArray);
         animArray.push(downNoteArray);

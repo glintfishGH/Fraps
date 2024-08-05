@@ -38,7 +38,7 @@ class Strumline extends Bitmap {
         animation.loop = false;
     }
 
-    private function getStaticArrows(staticAnims:Array<String>, pressNotes:Array<String>) {
+    private function getStaticArrows(staticAnims:Array<String>, pressNotes:Array<String>, ?confirmNotes:Array<String>) {
         for (child in _xml.elements()) {
             var childSubstr = child.get("name").substring(0, child.get("name").length - 4);
             if (staticAnims.contains(childSubstr) || pressNotes.contains(childSubstr)) {

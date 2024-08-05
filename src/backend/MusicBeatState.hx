@@ -10,18 +10,19 @@ class MusicBeatState extends App {
 	private var oldStep:Int;
 
 	override public function update(dt:Float) {
+		/**
+		 * Heaps doesn't have a `position` paramater for sounds, so this will have to do for now.
+		 */
 		Conductor.songPosition += dt * 1000;
 
 		oldStep = curStep;
 
-		// trace("BEFORE: " + "oldStep: " + oldStep + "\ncurStep: " + curStep);
 		updateStep();
-		// trace("AFTER: " + "oldStep: " + oldStep + "\ncurStep: " + curStep);
 
+		// Stole this from ninjamuffin <3
 		if (oldStep != curStep) {
 			stepHit();
 		}
-		else {}
 		super.update(dt);
 	}
 
@@ -35,6 +36,6 @@ class MusicBeatState extends App {
 	}
 
 	function beatHit() {
-		// override this function to add functionality    duh
+		// Override this with your custom functionality
 	}
 }

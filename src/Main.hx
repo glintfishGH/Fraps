@@ -1,31 +1,50 @@
-import hxd.res.Sound;
+import hxd.Window;
+import hxd.Key;
 import hxd.snd.Manager;
 import hxd.Res;
 
 class Main extends hxd.App {
-	public static var loadTime:Float = 0;
+	/**
+	 * Sound manager object. Controls global volume.
+	 */
+	public static var soundManager:Manager;
 
-	var sound:Sound;
-
-	public static var manager:Manager;
 	static function main() {
 		Res.initEmbed();
-		manager = Manager.get();
-        manager.masterVolume = 0.5;
-		new PlayState();
-	}
 
-	override public function update(dt:Float) {
-		super.update(dt);
+		// Initializes the sound manager
+		soundManager = Manager.get();
+        soundManager.masterVolume = 0.5;
+
+		new TitleState();
+
+		/**
+		 * Note that `new TitleState()` HAS to be called before adding event listeners.
+		 * Otherwise, the game crashes.
+		**/ 
+		Window.getInstance().addEventTarget(function (event) {
+			if (event.keyCode == Key.NUMPAD_SUB) {
+				managerMasterVolume(-0.1);
+			}
+			else if (event.keyCode == Key.NUMPAD_ADD) {
+				managerMasterVolume(0.1);
+			}
+		});
 	}
 	
-	public static function managerMasterVolume(volumeChange:Float) {
-		manager.masterVolume += volumeChange;
-		if (manager.masterVolume + volumeChange <= 0) {
-			manager.masterVolume = 0;
+	/**
+	 * Change the global volume. 
+	 * TODO: Fix an issue where the volume change occurs twice. Seems to not be related to this though?
+	 * @param volumeChange Amount to change the volume (0-1)
+	 */
+	static function managerMasterVolume(volumeChange:Float) {
+		soundManager.masterVolume += volumeChange;
+		if (soundManager.masterVolume + volumeChange <= 0) {
+			soundManager.masterVolume = 0;
 		}
-		else if (manager.masterVolume + volumeChange > 1) {
-			manager.masterVolume = 1;
+		else if (soundManager.masterVolume + volumeChange > 1) {
+			soundManager.masterVolume = 1;
 		}
+		trace(soundManager.masterVolume);
 	}
 }
