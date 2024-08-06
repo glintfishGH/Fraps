@@ -1,7 +1,3 @@
-import backend.MusicBeatState;
-import backend.Conductor;
-import haxe.Timer;
-import hxd.Res;
 import haxe.Json;
 import hxd.File;
 import h2d.Anim;
@@ -38,7 +34,7 @@ class Character extends Bitmap {
 
     /**
      * The characters name with no .xml extension.
-     * Set by using the `xml` param in the constructor.
+     * Set by using the `xmlPath` param in the constructor.
      * Probably a bad idea?
      */
     var charNameIsolated:String;
@@ -53,6 +49,10 @@ class Character extends Bitmap {
         this.x = x;
         this.y = y;
         this.image = image;
+
+        // Sets the tile to a green transparent pixel.
+        // This fixes the issue where there'd be a pink tile on the top left of the frame
+        tile = Tile.fromColor(0xFF06E806, 1, 1, 0);
 
         initArrays();
         charNameIsolated = xmlPath;
