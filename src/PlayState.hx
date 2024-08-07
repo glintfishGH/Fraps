@@ -1,15 +1,9 @@
-import hxd.snd.SoundGroup;
-import hl.Gc;
-import hxd.System;
-import sys.Http;
-import h2d.Text;
 import hxd.File;
 import hxd.fs.BytesFileSystem.BytesFileEntry;
 import hxd.Window;
 import hxd.Key;
 import hxd.res.Sound;
 import hxd.Res;
-import h2d.Camera;
 import backend.*;
 
 class PlayState extends MusicBeatState {

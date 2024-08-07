@@ -14,6 +14,6 @@ class TitleState extends MusicBeatState {
 
     override function update(dt:Float) {
         if (Key.isPressed(Key.SPACE))
-            new PlayState();
+            new MainMenu();
     }
 }
