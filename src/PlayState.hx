@@ -25,14 +25,12 @@ class PlayState extends MusicBeatState {
 
     override function init() {
         super.init();
-        trace(Paths.image(""));
+        // trace(Paths.image(""));
 
         Conductor.bpm = 100;
         Conductor.songPosition = 0;
 
         loadSong();
-
-        s2d.defaultSmooth = true;
 
         bg = new Stage(0, 0, Res.images.week1.stageback.toTile());
         s2d.addChild(bg);

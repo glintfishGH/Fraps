@@ -2,8 +2,9 @@ import hxd.Window;
 import hxd.Key;
 import hxd.snd.Manager;
 import hxd.Res;
+import hxd.App;
 
-class Main extends hxd.App {
+class Main extends App {
 	/**
 	 * Sound manager object. Controls global volume.
 	 */
@@ -30,6 +31,11 @@ class Main extends hxd.App {
 				managerMasterVolume(0.1);
 			}
 		});
+	}
+
+	override function init() {
+		super.init();
+        s2d.defaultSmooth = true;
 	}
 	
 	/**

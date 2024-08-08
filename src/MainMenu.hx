@@ -19,6 +19,8 @@ enum Direction {
 class MainMenu extends MusicBeatState {
     var bg:Bitmap;
 
+    var optionsArray:Array<String> = ["story", "freeplay", "options"];
+
     var menuOptions:Array<AnimatedSprite> = [];
     var storyMode:AnimatedSprite;
     var freeplay:AnimatedSprite;
@@ -32,27 +34,18 @@ class MainMenu extends MusicBeatState {
         bg = new Bitmap(Res.images.mainMenu.menuBG.toTile());
         s2d.addChild(bg);
 
-        moveSelection(NONE);
-
         for (i in 0...3) {
             var menuOption:AnimatedSprite = new AnimatedSprite(0, 225 * i, Res.images.mainMenu.mainMenu_png.toTile(), "res/images/mainMenu/mainMenu.xml");
-            switch (i) {
-                case 0:
-                    menuOption.addAnimation("idle", "story");
-                    menuOption.addAnimation("selected", "story small");
-                case 1:
-                    menuOption.addAnimation("idle", "freeplay");
-                    menuOption.addAnimation("selected", "freeplay small");
-                case 2:
-                    menuOption.addAnimation("idle", "options");
-                    menuOption.addAnimation("selected", "options small");
-            }
+            menuOption.addAnimation("idle", '${optionsArray[i]} small');
+            menuOption.addAnimation("selected", '${optionsArray[i]}');
             menuOption.playAnimation("idle");
             menuOption.x = (Window.getInstance().width - menuOption.animation.getFrame().width) / 2;
             // for (frame in 0...menuOption.animation.frames.length)
             //     menuOption.animation.frames[frame].setCenterRatio();
             menuOptions.push(menuOption);
         }
+
+        moveSelection(NONE);
 
         for (sprite in menuOptions) {
             s2d.addChild(sprite);
@@ -73,9 +66,14 @@ class MainMenu extends MusicBeatState {
         if (direction != NONE)
             direction == UP ? curSelected-- : curSelected++;
         for (i in 0...menuOptions.length) {
+
+            /**
+             * TODO: Make this work slightly differently, since the idle animation restarts every time this function is called
+             */
             if (i == curSelected)
                 menuOptions[curSelected].playAnimation("selected");
             else menuOptions[i].playAnimation("idle");
+            menuOptions[i].x = (Window.getInstance().width - menuOptions[i].animation.getFrame().width) / 2;
         }
     }
 }
