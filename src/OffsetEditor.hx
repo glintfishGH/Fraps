@@ -13,12 +13,17 @@ class OffsetEditor extends MusicBeatState {
     var idleTile:Bitmap;
 
     var animationIndex:Int = 0;
+    var moveAmount:Int = 2;
 
     var moveX:Int;
     var moveY:Int;
 
     var charOffsetX:Int;
     var charOffsetY:Int;
+
+    var animList:Array<String> = [];
+
+    var animOffsets:Text;
 
 	override function init() {
         var bg:Stage = new Stage(0, 0, Res.images.week1.stageback.toTile());
@@ -31,105 +36,89 @@ class OffsetEditor extends MusicBeatState {
 
         switch(PlayState.offsetCharacter) {
             case "BOYFRIEND": 
-                char = new Character(0, 0, Res.characters.BOYFRIEND_png.toTile(), "BOYFRIEND");
+                char = new Character(0, 0, Paths.image("characters/BOYFRIEND"), "res/characters/BOYFRIEND");
             case "DADDY_DEAREST":
                 char = new Character(0, 0, Res.characters.DADDY_DEAREST_png.toTile(), "DADDY_DEAREST");
         }
+        for (anim in char.animations.keys()) {
+            animList.push(anim);
+        }
+        char.playAnimation(animList[0]);
+        trace(animList);
         idleTile = new Bitmap();
         s2d.addChild(idleTile);
         setGhost();
+        animOffsets = new Text(DefaultFont.get());
+        animOffsets.setPosition(20, 100);
+        s2d.addChild(animOffsets);
         
         char.setPosition(Window.getInstance().width / 2 - char.getSize().width / 2, Window.getInstance().height / 2 - char.getSize().height / 2);
         s2d.addChild(char);
 	}
 
 	/**
-     * Sets up the "Ghost". Assumes idleArray is the first array in animArray
+     * Sets up the "Ghost.
 	 */
 	function setGhost() {
-        idleTile.tile = char.animArray[0][0];
+        idleTile.tile = char.animations.get("idle")[0];
         idleTile.alpha = 0.4;
         idleTile.setPosition(Window.getInstance().width / 2 - char.getSize().width / 2, Window.getInstance().height / 2 - char.getSize().height / 2);
 	}
 
+    function updateOffsetText() {
+        animOffsets.text = "";
+        for (i in 0...animList.length) {
+            animOffsets.text += animList[i] + ": " + char.animations.get(animList[i])[0].dx + " | ";
+            animOffsets.text += char.animations.get(animList[i])[0].dy + "\n";
+        }
+    }
+
     override function update(dt:Float) {
         super.update(dt);
         trace(animationIndex);
-        
-        if (animationIndex > char.animArray.length - 1) {
-            trace("arrayIndex is higher than the amount of arrays! going back!");
-            animationIndex = 0;
-            char.playAnim(animationIndex, false, 24);
-        }
 
-        if (animationIndex < 0) {
-            trace("arrayIndex is under 0!");
-            animationIndex = char.animArray.length - 1;
-            char.playAnim(animationIndex, false, 24);
-        }
-
-        if (Key.isPressed(Key.D)) {
-            animationIndex++;
-            char.playAnim(animationIndex, false, 24);
-        }
         if (Key.isPressed(Key.A)) {
             animationIndex--;
-            char.playAnim(animationIndex, false, 24);
+            if (animationIndex < 0) {
+                animationIndex = animList.length - 1;
+            }
+            char.playAnimation(animList[animationIndex]);
         }
-
         if (Key.isDown(Key.SHIFT)) {
-            moveX = 10;
-            moveY = 10;
+            moveAmount = 20;
         }
-        else {
-            moveX = 1;
-            moveY = 1;
-        }
-        
-        // Loops through all the frames in the animation and offsets them by move[Dir]
-        // This code is ages old so dont eat my ass lmao
-        if (Key.isPressed(Key.UP)) {
-            for (frame in char.animArray[animationIndex]) {
-                frame.dy -= moveY;
+        else moveAmount = 2;
+        if (Key.isPressed(Key.D)) {
+            animationIndex++;
+            if (animationIndex > animList.length - 1) {
+                animationIndex = 0;
             }
-            char.playAnim(animationIndex, false, 24);
-        }
-        if (Key.isPressed(Key.DOWN)) {
-            charOffsetY++;
-            for (frame in char.animArray[animationIndex]) {
-                frame.dy += moveY;
-            }
-            char.playAnim(animationIndex, false, 24);
+            char.playAnimation(animList[animationIndex]);
         }
 
         if (Key.isPressed(Key.LEFT)) {
-            charOffsetX--;
-            for (frame in char.animArray[animationIndex]) {
-                frame.dx -= moveX;
+            for (frame in char.animations.get(animList[animationIndex])) {
+                frame.dx -= moveAmount;
             }
-            char.playAnim(animationIndex, false, 24);
-        }
-        if (Key.isPressed(Key.RIGHT)) {
-            charOffsetX++;
-            for (frame in char.animArray[animationIndex]) {
-                frame.dx += moveX;
-            }
-            char.playAnim(animationIndex, false, 24);
         }
 
-        if (Key.isPressed(Key.ENTER))
-            {
-                var jsonData = {
-                    leftOffset: [char.animArray[1][0].dx + charOffsetX, char.animArray[1][0].dy + charOffsetX],
-                    downOffset: [char.animArray[2][0].dx + charOffsetX, char.animArray[2][0].dy + charOffsetX],
-                    upOffset: [char.animArray[3][0].dx + charOffsetX, char.animArray[3][0].dy + charOffsetX],
-                    rightOffset: [char.animArray[4][0].dx + charOffsetX, char.animArray[4][0].dy + charOffsetX]
-                };
-                var _json:String = Json.stringify(jsonData, "\t");
-                sys.io.File.saveContent("res/characters/" + PlayState.offsetCharacter + ".json", _json);
-                PlayState.inst.stop();
-                PlayState.vocals.stop();
-                new PlayState();
+        if (Key.isPressed(Key.RIGHT)) {
+            for (frame in char.animations.get(animList[animationIndex])) {
+                frame.dx += moveAmount;
             }
+        }
+
+        if (Key.isPressed(Key.DOWN)) {
+            for (frame in char.animations.get(animList[animationIndex])) {
+                frame.dy += moveAmount;
+            }
+        }
+
+        if (Key.isPressed(Key.UP)) {
+            for (frame in char.animations.get(animList[animationIndex])) {
+                frame.dy -= moveAmount;
+            }
+        }
+        updateOffsetText();
     }
 }

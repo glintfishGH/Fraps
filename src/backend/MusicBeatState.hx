@@ -1,19 +1,28 @@
 package backend;
 
+import hxd.Window;
+import h2d.Object;
+import hxd.snd.Channel;
+import hxsl.Channel;
+import openal.AL;
 import h2d.Text;
 import hxd.App;
 
-class MusicBeatState extends App {
-	private var curStep:Int = 0;
-	private var curBeat:Int = 0;
+enum Axis {
+	X;
+	Y;
+	XY;
+}
 
-	private var oldStep:Int;
+class MusicBeatState extends App {
+	private var curStep:Float = 0;
+	private var curBeat:Float = 0;
+	private var oldStep:Float;
+
+	public var windowInstance:Window = Window.getInstance();
 
 	override public function update(dt:Float) {
-		/**
-		 * Heaps doesn't have a `position` paramater for sounds, so this will have to do for now.
-		 */
-		Conductor.songPosition += dt * 1000;
+		Conductor.songPosition = PlayState.inst.position * 1000;
 
 		oldStep = curStep;
 
@@ -27,15 +36,29 @@ class MusicBeatState extends App {
 	}
 
 	function updateStep() {
-		curStep = Math.floor(Conductor.songPosition / Conductor.stepCrochet);
+		curStep = Math.floor(Conductor.songPosition / Conductor.stepCrochet) - Std.int(Conductor.curStepOffset);
 	}
 
 	function stepHit() {
+		trace(curStep);
 		if (curStep % 4 == 0)
 			beatHit();
 	}
 
 	function beatHit() {
+        trace("beat hit");
 		// Override this with your custom functionality
+	}
+
+	function screenCenter(object:Object, axis:Axis = XY) {
+		if (axis == X) {
+			object.x = (Window.getInstance().width - object.getSize().width) / 2;
+		}
+		if (axis == Y)
+			object.y = (Window.getInstance().height - object.getSize().height) / 2;
+		else {
+			object.x = (Window.getInstance().width - object.getSize().width) / 2;
+			object.y = (Window.getInstance().height - object.getSize().height) / 2;
+		}
 	}
 }

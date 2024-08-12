@@ -25,6 +25,7 @@ class AnimatedSprite extends Bitmap {
 
         animation = new Anim(null, 24, this);
 
+        trace(xmlDirectory);
         xml = Xml.parse(sys.io.File.getContent(xmlDirectory)).firstElement();
     }
 
@@ -41,10 +42,20 @@ class AnimatedSprite extends Bitmap {
                                            -Std.parseInt(child.get("frameY")) );
                 anims.push(frame);
             }
-            trace(childSubstr);
         }
         animations.set(name, anims);
-        trace(animations);
+    }
+
+    /**
+     * FIXME: This does not work.
+     */
+    function addOffsetToAnimation(animationName:String, offset:Array<Int>) {
+        for (frames in animations.keyValueIterator()) {
+            for (frame in frames.value) {
+               frame.dx += offset[0];
+               frame.dy += offset[1];
+            }
+        }
     }
 
     public function playAnimation(name:String) {

@@ -6,14 +6,17 @@ import backend.*;
 
 class TitleState extends MusicBeatState {
     override function init() {
-        var gfSpeakers:Character = new Character(0, 0, Res.characters.gfDanceTitle_png.toTile(), "gfDanceTitle");
-        gfSpeakers.setPosition(Window.getInstance().width / 2 - gfSpeakers.getSize().width / 2, Window.getInstance().height / 2 - gfSpeakers.getSize().height / 2);
+        var gfSpeakers:Character = new Character(0, 0, Paths.image("characters/gfDanceTitle"), "res/characters/gfDanceTitle");
         gfSpeakers.animation.loop = true;
         s2d.addChild(gfSpeakers);
+
+        trace(gfSpeakers.x, gfSpeakers.y, gfSpeakers.getSize().width, gfSpeakers.getSize().height);
+
+        screenCenter(gfSpeakers);
     }
 
     override function update(dt:Float) {
         if (Key.isPressed(Key.SPACE))
-            new MainMenu();
+            new TestState();
     }
 }

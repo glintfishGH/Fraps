@@ -2,6 +2,9 @@ import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Tile;
 
+/**
+ * TODO: Change this so it extends AnimatedSprite.
+ */
 class Strumline extends Bitmap {
     public var animArray:Array<Array<Tile>> = [];
     public var leftStrumArray:Array<Tile> = [];
@@ -49,16 +52,16 @@ class Strumline extends Bitmap {
                                            -Std.parseInt(child.get("frameX")),
                                            -Std.parseInt(child.get("frameY")) );
                 frame.setCenterRatio();
-                if (childSubstr == staticAnims[0] || childSubstr == pressNotes[0]) {
+                if (childSubstr == staticAnims[0]) {
                     leftStrumArray.push(frame);
                 }
-                else if (childSubstr == staticAnims[1] || childSubstr == pressNotes[1]) {
+                else if (childSubstr == staticAnims[1]) {
                     downStrumArray.push(frame);
                 }
-                else if (childSubstr == staticAnims[2] || childSubstr == pressNotes[2]) {
+                else if (childSubstr == staticAnims[2]) {
                     upStrumArray.push(frame);
                 }
-                else if (childSubstr == staticAnims[3] || childSubstr == pressNotes[3]) {
+                else if (childSubstr == staticAnims[3]) {
                     rightStrumArray.push(frame);
                 }
             }
