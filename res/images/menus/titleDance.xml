@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="babeybop.png">
+	<!-- Created with Adobe Animate version 22.0.2.168 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="boppy0000" x="2" y="2" width="1185" height="797" frameX="-12" frameY="-1" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0001" x="2" y="2" width="1185" height="797" frameX="-12" frameY="-1" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0002" x="1189" y="2" width="1209" height="790" frameX="0" frameY="-10" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0003" x="1189" y="2" width="1209" height="790" frameX="0" frameY="-10" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0004" x="2400" y="2" width="1185" height="792" frameX="-12" frameY="-6" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0005" x="2" y="801" width="1185" height="792" frameX="-12" frameY="-6" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0006" x="1189" y="801" width="1185" height="796" frameX="-12" frameY="-2" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0007" x="1189" y="801" width="1185" height="796" frameX="-12" frameY="-2" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0008" x="2" y="2" width="1185" height="797" frameX="-12" frameY="-1" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0009" x="2" y="2" width="1185" height="797" frameX="-12" frameY="-1" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0010" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0011" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0012" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0013" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0014" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0015" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0016" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0017" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0018" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0019" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0020" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0021" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0022" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+	<SubTexture name="boppy0023" x="2376" y="801" width="1185" height="798" frameX="-12" frameY="0" frameWidth="1209" frameHeight="800"/>
+</TextureAtlas>

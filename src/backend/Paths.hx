@@ -1,5 +1,6 @@
 package backend;
 
+import sys.io.File;
 import hxsl.Channel;
 import hxd.res.Sound;
 import h2d.Tile;
@@ -19,5 +20,9 @@ class Paths {
         var song = Res.load(key + ".ogg").toSound().play();
         song.pause = true;
         return song;
+    }
+
+    public static inline function sound(key:String):Sound {
+        return Res.load(key + ".ogg").toSound();
     }
 }

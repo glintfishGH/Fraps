@@ -1,3 +1,5 @@
+import glibs.GLDebugTools;
+import Note.NoteDir;
 import sys.thread.Thread;
 import haxe.Timer;
 import h3d.scene.Mesh;
@@ -19,6 +21,7 @@ class PlayState extends MusicBeatState {
     // SOUNDS
     public static var inst:Channel;
     public static var vocals:Channel;
+    public var chart:Dynamic;
 
     private var boyfriend:Character;
     private var opponent:Character;
@@ -29,6 +32,8 @@ class PlayState extends MusicBeatState {
 
     var noteSpawnerGroup:Array<NoteSpawner> = [];
     public var noteGroup:Array<Note> = [];
+
+    var noteTimeData:Array<Array<Dynamic>> = [];
 
     var scrollSpeed:Float = 1.3;
 
@@ -47,6 +52,8 @@ class PlayState extends MusicBeatState {
         bg = new Stage(0, 0, Res.images.week1.stageback.toTile());
         s2d.addChild(bg);
 
+        chart = Json.parse(sys.io.File.getContent("res/songs/" + curSong + "/chart.json"));
+
         boyfriend = new Character(0, 0, Paths.image("characters/BOYFRIEND"), "res/characters/BOYFRIEND");
         screenCenter(boyfriend, XY);
         s2d.addChild(boyfriend);
@@ -54,55 +61,100 @@ class PlayState extends MusicBeatState {
         opponent = new Character(0, 0, Paths.image("characters/DADDY_DEAREST"), "res/characters/DADDY_DEAREST");
         opponent.setPosition(Window.getInstance().width / 2 - opponent.getSize().width / 2 - 300, Window.getInstance().height / 2 - opponent.getSize().height / 2);
         s2d.addChild(opponent);
-
-        scrollSpeed = 1.3;
         
         for (i in 0...4) {
-            var opponentStrum = new Strumline(0, 100, Paths.image("shared/images/NOTE_assets"), "NOTE_assets", i);
-            opponentStrum.x = Window.getInstance().width / 2 - opponentStrum.animArray[i][0].width * 1.5 + opponentStrum.animArray[i][0].width * i;
-            opponentStrum.x -= 300;
+            var opponentStrum = new Strumline(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", i);
+            var strumWidth = opponentStrum.animations.get("staticLeft")[0].width;
+            opponentStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
+            opponentStrum.x -= 410.5;
             opponentStrumGroup.push(opponentStrum);
             s2d.add(opponentStrumGroup[i]);
 
-            var noteSpawner:NoteSpawner = new NoteSpawner(opponentStrum, i);
+            var noteSpawner:NoteSpawner = new NoteSpawner(opponentStrum);
             noteSpawnerGroup.push(noteSpawner);
         }
 
         for (i in 0...4) {
-            var playerStrum = new Strumline(0, 100, Paths.image("shared/images/NOTE_assets"), "NOTE_assets", i);
-            playerStrum.x = Window.getInstance().width / 2 - playerStrum.animArray[i][0].width * 1.5 + playerStrum.animArray[i][0].width * i;
-            playerStrum.x += 300;
+            var playerStrum = new Strumline(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", i);
+            var strumWidth = playerStrum.animations.get("staticLeft")[0].width;
+            playerStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
+            playerStrum.x += 260;
             playerStrumGroup.push(playerStrum);
             s2d.add(playerStrumGroup[i]);
 
-            var noteSpawner:NoteSpawner = new NoteSpawner(playerStrum, i + 4);
+            var noteSpawner:NoteSpawner = new NoteSpawner(playerStrum);
             noteSpawnerGroup.push(noteSpawner);
         }
-        // for (strum in playerStrumGroup) {
-        //     s2d.addChild(strum);
-        // }
     
-        for (noteSpawner in noteSpawnerGroup)
+        for (noteSpawner in noteSpawnerGroup) {
+            trace(noteSpawner.x);
             s2d.addChild(noteSpawner);
+        }
 
+        /**
+         * sectionData referrs to sections of the chart with this structure:
+         * {sectionNotes : [[375,3,250,],[750,3,375,],[0,2,0,]], lengthInSteps : 16, bpm : 0, mustHitSection : false}
+         * 
+         * first we have to iterate over all of those to get the section notes.
+         */
+        for (i in 0...chart.song.notes.length) {
+            // Easier to write.
+            var sectionData = chart.song.notes[i];
 
-        // These were tested on base game bopeebo
-        // Keyword TESTED
-        // noteSpawnerGroup[2].spawnNote(UP,    0);
-        // noteSpawnerGroup[3].spawnNote(RIGHT, 600);
-        // noteSpawnerGroup[3].spawnNote(RIGHT, 1200);
+            for (i in 0...sectionData.sectionNotes.length) {
+                /**
+                 * noteData refers to the notes in sectionNotes.
+                 * [time, strum, sustainLength]
+                 * time - noteData[0]
+                 * strum - noteData[1]
+                 * sustainLength - noteData[2]
+                 */ 
 
-        // noteSpawnerGroup[6].spawnNote(UP,    2400);
-        // noteSpawnerGroup[7].spawnNote(RIGHT, 3000);
-        // noteSpawnerGroup[7].spawnNote(RIGHT, 3600);
+                var noteData = sectionData.sectionNotes[i];
+                noteTimeData.push(noteData);
 
-        // noteSpawnerGroup[1].spawnNote(DOWN,    4800);
-        // noteSpawnerGroup[0].spawnNote(LEFT, 5400);
-        // noteSpawnerGroup[3].spawnNote(RIGHT, 6000);
+                /**
+                 * Most of this codebase refers to FPS Plus and how it works.
+                 * Since FPS Plus uses the legacy chart format, it comes with its kinks.
+                 * If only one side has notes in a section, it'll use strums 0, 1, 2 and 3 for both the opponent and player
+                 * but if its a mustHitSection, it'll ues 4, 5, 6 and 7?
+                 * This is dumb.
+                 */
 
-        // noteSpawnerGroup[5].spawnNote(DOWN,    7200);
-        // noteSpawnerGroup[4].spawnNote(LEFT, 7800);
-        // noteSpawnerGroup[7].spawnNote(RIGHT, 8400);
+                var noteDir:NoteDir = LEFT;
+
+                switch(noteData[1]) {
+                    case 0 | 4:
+                        noteDir = LEFT;
+                    case 1 | 5:
+                        noteDir = DOWN;
+                    case 2 | 6:
+                        noteDir = UP;
+                    case 3 | 7:
+                        noteDir = RIGHT;
+                }
+                /**
+                 * "this will definitely come and bite me in the ass later" -Glint
+                 */
+                if (sectionData.mustHitSection && noteData[1] <= 3) {
+                    noteSpawnerGroup[noteData[1] + 4].spawnNote(noteDir, noteData[0]);
+                }
+                else noteSpawnerGroup[noteData[1]].spawnNote(noteDir, noteData[0]);
+            }
+        }
+        scrollSpeed = chart.song.speed * 1.35;
+
+        // Ass code but it works for now
+        // All this does it make the notes appear when spawned, since they dont play their animation instantly
+        noteHit(playerStrumGroup, "Left", 0);
+        noteHit(playerStrumGroup, "Down", 1);
+        noteHit(playerStrumGroup, "Up", 2);
+        noteHit(playerStrumGroup, "Right", 3);
+        noteHit(opponentStrumGroup, "Left", 0);
+        noteHit(opponentStrumGroup, "Down", 1);
+        noteHit(opponentStrumGroup, "Up", 2);
+        noteHit(opponentStrumGroup, "Right", 3);
+
     }
 
     override function update(dt:Float) {
@@ -110,39 +162,41 @@ class PlayState extends MusicBeatState {
 
         if (Key.isPressed(Key.LEFT)) {
             newNoteHit(boyfriend, "left");
-            // noteHit(playerStrumGroup, 1);
+            noteHit(playerStrumGroup, "Left", 0);            
             }
         if (Key.isPressed(Key.DOWN)) {
             newNoteHit(boyfriend, "down");
-            // noteHit(playerStrumGroup, 2);
+            noteHit(playerStrumGroup, "Down", 1);
             }
         if (Key.isPressed(Key.UP)) {
             newNoteHit(boyfriend, "up");
+            noteHit(playerStrumGroup, "Up", 2);            
 
             // noteHit(playerStrumGroup, 3);
             }
         if (Key.isPressed(Key.RIGHT)) {
             newNoteHit(boyfriend, "right");
-
+            noteHit(playerStrumGroup, "Right", 3);            
             // noteHit(playerStrumGroup, 4);
             }
 
         if (Key.isPressed(Key.A)) {
             newNoteHit(opponent, "left");
-            // noteHit(opponentStrumGroup, 1);
+            noteHit(opponentStrumGroup, "Left", 0);
             }
         if (Key.isPressed(Key.S)) {
             newNoteHit(opponent, "down");
-
-            // noteHit(opponentStrumGroup, 2);
+            noteHit(opponentStrumGroup, "Down", 1);
             }
         if (Key.isPressed(Key.W)) {
             newNoteHit(opponent, "up");
+            noteHit(opponentStrumGroup, "Up", 2);
 
             // noteHit(opponentStrumGroup, 3);
             }
         if (Key.isPressed(Key.D)) {
             newNoteHit(opponent, "right");
+            noteHit(opponentStrumGroup, "Right", 3);
 
             // noteHit(opponentStrumGroup, 4);
             }
@@ -160,7 +214,25 @@ class PlayState extends MusicBeatState {
             if (Conductor.songPosition - note.time >= 0.0) {
                 noteGroup.remove(note);
                 note.remove();
-            }
+
+                if (note.parentSpawner == noteSpawnerGroup[0]) 
+                        newNoteHit(opponent, "left");
+                if (note.parentSpawner == noteSpawnerGroup[1])
+                        newNoteHit(opponent, "down");
+                if (note.parentSpawner == noteSpawnerGroup[2]) 
+                        newNoteHit(opponent, "up");
+                if (note.parentSpawner == noteSpawnerGroup[3])
+                        newNoteHit(opponent, "right");
+
+                if (note.parentSpawner == noteSpawnerGroup[4])
+                        newNoteHit(boyfriend, "left");
+                if (note.parentSpawner == noteSpawnerGroup[5]) 
+                        newNoteHit(boyfriend, "down");
+                if (note.parentSpawner == noteSpawnerGroup[6])
+                        newNoteHit(boyfriend, "up");
+                if (note.parentSpawner == noteSpawnerGroup[7])
+                        newNoteHit(boyfriend, "right");
+                }
             if (note.y < -500) {
                 noteGroup.remove(note);
                 note.remove();
@@ -171,12 +243,13 @@ class PlayState extends MusicBeatState {
     /**
      * FIXME: This just doesn't work. Will rework this later down the line anyways.
      */
-    function noteHit(strum:Array<Strumline>, ?goodHit:Bool, note:Int) {
-        strum[note - 1].playStrumAnim(note - 1);
+    function noteHit(strum:Array<Strumline>, direction:String, note:Int, ?goodHit:Bool) {
+        strum[note].playStrumAnim(direction, goodHit);
         // strum == playerStrumGroup ? boyfriend.playAnim(note) : opponent.playAnim(note);
     }
 
     function newNoteHit(char:Character, animToPlay:String) {
+        // char.playingAnim = true;
         char.playAnimation(animToPlay);
     }
 
@@ -220,5 +293,7 @@ class PlayState extends MusicBeatState {
         vocals = Paths.song("songs/" + curSong + "/voices");
         vocals.position = 0;
         vocals.pause = false;
+
+        attachedSong = inst;
     }
 }

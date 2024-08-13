@@ -1,18 +1,24 @@
+import haxe.Timer;
 import objects.AnimatedSprite;
-import haxe.Json;
-import hxd.File;
-import h2d.Anim;
 import h2d.Tile;
-import h2d.Bitmap;
 
 
 class Character extends AnimatedSprite {
     var charNameIsolated:String;
     public var playingAnim:Bool;
 
+    var holdTimer:Timer;
+
+    /**
+     * In miliseconds.
+     */
+    var noteHoldTime:Int = 700;
+
     public function new(x:Float, y:Float, image:Tile, ?xmlPath:String) {
         super(x, y, image, xmlPath + ".xml");
         charNameIsolated = xmlPath;
+
+        holdTimer = new Timer(noteHoldTime);
 
         animation.loop = false;
 
@@ -24,10 +30,10 @@ class Character extends AnimatedSprite {
                 addAnimation("up", "BF NOTE UP");
                 addAnimation("right", "BF NOTE RIGHT");
 
-                addOffsetToAnimation("down", [13, 57]);
-                addOffsetToAnimation("up", [52, -32]);
-                addOffsetToAnimation("right", [46, 8]);
-                addOffsetToAnimation("left", [-6, 6]);
+                addOffsetToAnimation("down",    [12,  49]);
+                addOffsetToAnimation("up",      [46, -32]);
+                addOffsetToAnimation("right",   [46,  6]);
+                addOffsetToAnimation("left",    [-6,  6]);
 
             case "res/characters/DADDY_DEAREST":  
                 addAnimation("idle", "Dad idle dance");
@@ -36,10 +42,10 @@ class Character extends AnimatedSprite {
                 addAnimation("up", "Dad Sing Note UP");
                 addAnimation("right", "Dad Sing Note RIGHT");
 
-                addOffsetToAnimation("down", [0, 37]);
-                addOffsetToAnimation("up", [9, -50]);
-                addOffsetToAnimation("right", [4, -25]);
-                addOffsetToAnimation("left", [10, -10]);
+                addOffsetToAnimation("down",    [-2,   52]);
+                addOffsetToAnimation("up",      [10,  -65]);
+                addOffsetToAnimation("right",   [4,  -31]);
+                addOffsetToAnimation("left",    [7, -11]);
 
             case "res/characters/gfDanceTitle":
                 addAnimation("idle", "gfDance");
@@ -48,6 +54,27 @@ class Character extends AnimatedSprite {
     }
 
     public function dance() {
-        animation.play(animations.get("idle"));
+        if (!playingAnim)
+            animation.play(animations.get("idle"));
+    }
+
+    override function playAnimation(name:String) {
+        super.playAnimation(name);
+
+        // playingAnim = true;
+
+        /**
+         * Calling `holdTimer.stop()` doesn't allow us to run the timer function again, so we create a new instance.
+         * FIXME: This causes a memory leak... too bad!
+         */
+        // if (name != "idle" && playingAnim) {
+        //     holdTimer.run = function() {
+        //         playingAnim = false;
+        //         dance();
+                
+        //         // do nothing fuckass
+        //         holdTimer.run = function() {}
+        //     }
+        // }
     }
 }

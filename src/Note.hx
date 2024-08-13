@@ -11,6 +11,7 @@ enum abstract NoteDir(String) from String to String {
 
 class Note extends Bitmap {
     public var time:Float;
+    public var parentSpawner:NoteSpawner;
     public function new(note:NoteDir, time:Float) {
         super();
         this.time = time;
@@ -19,6 +20,6 @@ class Note extends Bitmap {
     }
 
     private function loadNote(note:NoteDir) {
-        tile = Res.load("shared/images/" + note + ".png").toImage().toTile();
+        tile = Res.load("images/gameplay/" + note + ".png").toImage().toTile();
     }
 }

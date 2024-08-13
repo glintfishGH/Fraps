@@ -1,3 +1,5 @@
+import backend.Paths;
+import hxd.snd.Channel;
 import h2d.TileGroup;
 import hxd.Key;
 import hxd.Window;
@@ -31,15 +33,20 @@ class MainMenu extends MusicBeatState {
     override function init() {
         super.init();
         
-        bg = new Bitmap(Res.images.mainMenu.menuBG.toTile());
+        bg = new Bitmap(Paths.image("images/mainMenu/menuBG"));
         s2d.addChild(bg);
 
         for (i in 0...3) {
-            var menuOption:AnimatedSprite = new AnimatedSprite(0, 225 * i, Res.images.mainMenu.mainMenu_png.toTile(), "res/images/mainMenu/mainMenu.xml");
+            var menuOption:AnimatedSprite = new AnimatedSprite(0, 50 + 225 * i, Res.images.mainMenu.mainMenu_png.toTile(), "res/images/mainMenu/mainMenu.xml");
             menuOption.addAnimation("idle", '${optionsArray[i]} small');
             menuOption.addAnimation("selected", '${optionsArray[i]}');
             menuOption.playAnimation("idle");
-            menuOption.x = (Window.getInstance().width - menuOption.animation.getFrame().width) / 2;
+
+            if (i == 0) {
+                menuOption.setScale(0.75);
+            }
+
+            menuOption.x = (Window.getInstance().width - menuOption.getBounds().width) / 2;
             // for (frame in 0...menuOption.animation.frames.length)
             //     menuOption.animation.frames[frame].setCenterRatio();
             menuOptions.push(menuOption);
@@ -59,6 +66,10 @@ class MainMenu extends MusicBeatState {
         if (Key.isPressed(Key.UP)) {
             moveSelection(UP);
         }
+        if (Key.isPressed(Key.ENTER)) {
+            TitleState.song.pause = true;
+            new PlayState();
+        }
         super.update(dt);
     }
 
@@ -72,8 +83,9 @@ class MainMenu extends MusicBeatState {
              */
             if (i == curSelected)
                 menuOptions[curSelected].playAnimation("selected");
-            else menuOptions[i].playAnimation("idle");
-            menuOptions[i].x = (Window.getInstance().width - menuOptions[i].animation.getFrame().width) / 2;
+            else
+                menuOptions[i].playAnimation("idle");
+            menuOptions[i].x = (Window.getInstance().width - menuOptions[i].getBounds().width) / 2;
         }
     }
 }

@@ -25,11 +25,10 @@ class AnimatedSprite extends Bitmap {
 
         animation = new Anim(null, 24, this);
 
-        trace(xmlDirectory);
         xml = Xml.parse(sys.io.File.getContent(xmlDirectory)).firstElement();
     }
 
-    public function addAnimation(name:String, nameFromXML:String, ?offset:Array<Int>) {
+    public function addAnimation(name:String, nameFromXML:String, ?offset:Array<Int>, ?playAnimAfterAddition:Bool) {
         var anims:Array<Tile> = [];
         for (child in xml.elements()) {
             var childSubstr = child.get("name").substring(0, child.get("name").length - 4);
@@ -47,6 +46,9 @@ class AnimatedSprite extends Bitmap {
             }
         }
         animations.set(name, anims);
+        if (playAnimAfterAddition) {
+            playAnimation(name);
+        }
     }
 
     /**

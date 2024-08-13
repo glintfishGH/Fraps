@@ -77,11 +77,11 @@ class OffsetEditor extends MusicBeatState {
     override function update(dt:Float) {
         super.update(dt);
 
-        if (Key.isPressed(Key.Q)) {
+        if (Key.isDown(Key.Q)) {
             s2d.camera.setScale(s2d.camera.scaleX - 0.01, s2d.camera.scaleY - 0.01);
         }
 
-        if (Key.isPressed(Key.E)) {
+        if (Key.isDown(Key.E)) {
             s2d.camera.setScale(s2d.camera.scaleX + 0.01, s2d.camera.scaleY + 0.01);
         }
 
@@ -93,9 +93,9 @@ class OffsetEditor extends MusicBeatState {
             char.playAnimation(animList[animationIndex]);
         }
         if (Key.isDown(Key.SHIFT)) {
-            moveAmount = 20;
+            moveAmount = 10;
         }
-        else moveAmount = 2;
+        else moveAmount = 1;
         if (Key.isPressed(Key.D)) {
             animationIndex++;
             if (animationIndex > animList.length - 1) {
