@@ -1,3 +1,4 @@
+import h2d.Camera;
 import hxd.res.DefaultFont;
 import h2d.Text;
 import hxd.Key;
@@ -38,7 +39,7 @@ class OffsetEditor extends MusicBeatState {
             case "BOYFRIEND": 
                 char = new Character(0, 0, Paths.image("characters/BOYFRIEND"), "res/characters/BOYFRIEND");
             case "DADDY_DEAREST":
-                char = new Character(0, 0, Res.characters.DADDY_DEAREST_png.toTile(), "DADDY_DEAREST");
+                char = new Character(0, 0, Paths.image("characters/DADDY_DEAREST"), "res/characters/DADDY_DEAREST");
         }
         for (anim in char.animations.keys()) {
             animList.push(anim);
@@ -75,7 +76,14 @@ class OffsetEditor extends MusicBeatState {
 
     override function update(dt:Float) {
         super.update(dt);
-        trace(animationIndex);
+
+        if (Key.isPressed(Key.Q)) {
+            s2d.camera.setScale(s2d.camera.scaleX - 0.01, s2d.camera.scaleY - 0.01);
+        }
+
+        if (Key.isPressed(Key.E)) {
+            s2d.camera.setScale(s2d.camera.scaleX + 0.01, s2d.camera.scaleY + 0.01);
+        }
 
         if (Key.isPressed(Key.A)) {
             animationIndex--;

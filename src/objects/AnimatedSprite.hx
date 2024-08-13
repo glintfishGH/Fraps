@@ -29,7 +29,7 @@ class AnimatedSprite extends Bitmap {
         xml = Xml.parse(sys.io.File.getContent(xmlDirectory)).firstElement();
     }
 
-    public function addAnimation(name:String, nameFromXML:String) {
+    public function addAnimation(name:String, nameFromXML:String, ?offset:Array<Int>) {
         var anims:Array<Tile> = [];
         for (child in xml.elements()) {
             var childSubstr = child.get("name").substring(0, child.get("name").length - 4);
@@ -40,6 +40,9 @@ class AnimatedSprite extends Bitmap {
                                             Std.parseInt(child.get("height")),
                                            -Std.parseInt(child.get("frameX")),
                                            -Std.parseInt(child.get("frameY")) );
+                if (offset != null) {
+                    addOffsetToAnimation(name, offset);
+                }
                 anims.push(frame);
             }
         }
@@ -50,11 +53,9 @@ class AnimatedSprite extends Bitmap {
      * FIXME: This does not work.
      */
     function addOffsetToAnimation(animationName:String, offset:Array<Int>) {
-        for (frames in animations.keyValueIterator()) {
-            for (frame in frames.value) {
-               frame.dx += offset[0];
-               frame.dy += offset[1];
-            }
+        for (frames in animations.get(animationName)) {
+            frames.dx += offset[0];
+            frames.dy += offset[1];
         }
     }
 

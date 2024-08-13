@@ -13,7 +13,7 @@ import hxd.Window;
 class PlayState extends MusicBeatState {
 
     // DEBUG
-    public static var offsetCharacter:String = "BOYFRIEND";
+    public static var offsetCharacter:String = "DADDY_DEAREST";
     public static var curSong:String = "bopeebo";
 
     // SOUNDS
@@ -42,7 +42,7 @@ class PlayState extends MusicBeatState {
 
         loadSong();
 
-        Conductor.changeBPM(95);
+        Conductor.changeBPM(120);
 
         bg = new Stage(0, 0, Res.images.week1.stageback.toTile());
         s2d.addChild(bg);
@@ -62,12 +62,10 @@ class PlayState extends MusicBeatState {
             opponentStrum.x = Window.getInstance().width / 2 - opponentStrum.animArray[i][0].width * 1.5 + opponentStrum.animArray[i][0].width * i;
             opponentStrum.x -= 300;
             opponentStrumGroup.push(opponentStrum);
+            s2d.add(opponentStrumGroup[i]);
 
-            var noteSpawner:NoteSpawner = new NoteSpawner(opponentStrum);
+            var noteSpawner:NoteSpawner = new NoteSpawner(opponentStrum, i);
             noteSpawnerGroup.push(noteSpawner);
-        }
-        for (strum in opponentStrumGroup) {
-            s2d.addChild(strum);
         }
 
         for (i in 0...4) {
@@ -75,9 +73,9 @@ class PlayState extends MusicBeatState {
             playerStrum.x = Window.getInstance().width / 2 - playerStrum.animArray[i][0].width * 1.5 + playerStrum.animArray[i][0].width * i;
             playerStrum.x += 300;
             playerStrumGroup.push(playerStrum);
-            s2d.add(playerStrum);
+            s2d.add(playerStrumGroup[i]);
 
-            var noteSpawner:NoteSpawner = new NoteSpawner(playerStrum);
+            var noteSpawner:NoteSpawner = new NoteSpawner(playerStrum, i + 4);
             noteSpawnerGroup.push(noteSpawner);
         }
         // for (strum in playerStrumGroup) {
@@ -111,29 +109,42 @@ class PlayState extends MusicBeatState {
         super.update(dt);
 
         if (Key.isPressed(Key.LEFT)) {
-            noteHit(playerStrumGroup, 1);
+            newNoteHit(boyfriend, "left");
+            // noteHit(playerStrumGroup, 1);
             }
         if (Key.isPressed(Key.DOWN)) {
-            noteHit(playerStrumGroup, 2);
+            newNoteHit(boyfriend, "down");
+            // noteHit(playerStrumGroup, 2);
             }
         if (Key.isPressed(Key.UP)) {
-            noteHit(playerStrumGroup, 3);
+            newNoteHit(boyfriend, "up");
+
+            // noteHit(playerStrumGroup, 3);
             }
         if (Key.isPressed(Key.RIGHT)) {
-            noteHit(playerStrumGroup, 4);
+            newNoteHit(boyfriend, "right");
+
+            // noteHit(playerStrumGroup, 4);
             }
 
         if (Key.isPressed(Key.A)) {
-            noteHit(opponentStrumGroup, 1);
+            newNoteHit(opponent, "left");
+            // noteHit(opponentStrumGroup, 1);
             }
         if (Key.isPressed(Key.S)) {
-            noteHit(opponentStrumGroup, 2);
+            newNoteHit(opponent, "down");
+
+            // noteHit(opponentStrumGroup, 2);
             }
         if (Key.isPressed(Key.W)) {
-            noteHit(opponentStrumGroup, 3);
+            newNoteHit(opponent, "up");
+
+            // noteHit(opponentStrumGroup, 3);
             }
         if (Key.isPressed(Key.D)) {
-            noteHit(opponentStrumGroup, 4);
+            newNoteHit(opponent, "right");
+
+            // noteHit(opponentStrumGroup, 4);
             }
         if (Key.isPressed(Key.SPACE)) {
             inst.stop();
@@ -163,6 +174,10 @@ class PlayState extends MusicBeatState {
     function noteHit(strum:Array<Strumline>, ?goodHit:Bool, note:Int) {
         strum[note - 1].playStrumAnim(note - 1);
         // strum == playerStrumGroup ? boyfriend.playAnim(note) : opponent.playAnim(note);
+    }
+
+    function newNoteHit(char:Character, animToPlay:String) {
+        char.playAnimation(animToPlay);
     }
 
     override function beatHit() {

@@ -24,10 +24,10 @@ class Character extends AnimatedSprite {
                 addAnimation("up", "BF NOTE UP");
                 addAnimation("right", "BF NOTE RIGHT");
 
-                // addOffsetToAnimation("left", [-8, 8]);
-                // addOffsetToAnimation("down", [17, 55]);
-                // addOffsetToAnimation("up", [49, -32]);
-                // addOffsetToAnimation("right", [45, 8]);
+                addOffsetToAnimation("down", [13, 57]);
+                addOffsetToAnimation("up", [52, -32]);
+                addOffsetToAnimation("right", [46, 8]);
+                addOffsetToAnimation("left", [-6, 6]);
 
             case "res/characters/DADDY_DEAREST":  
                 addAnimation("idle", "Dad idle dance");
@@ -35,6 +35,12 @@ class Character extends AnimatedSprite {
                 addAnimation("down", "Dad Sing Note DOWN");
                 addAnimation("up", "Dad Sing Note UP");
                 addAnimation("right", "Dad Sing Note RIGHT");
+
+                addOffsetToAnimation("down", [0, 37]);
+                addOffsetToAnimation("up", [9, -50]);
+                addOffsetToAnimation("right", [4, -25]);
+                addOffsetToAnimation("left", [10, -10]);
+
             case "res/characters/gfDanceTitle":
                 addAnimation("idle", "gfDance");
         }
