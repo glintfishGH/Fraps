@@ -41,8 +41,8 @@ class PlayState extends MusicBeatState {
 
     var needToUpdateStep:Bool = false;
 
-    override function init() {
-        super.init();
+    public function new() {
+        super();
         instance = this;
 
         loadSong();
@@ -50,17 +50,17 @@ class PlayState extends MusicBeatState {
         Conductor.changeBPM(120);
 
         bg = new Stage(0, 0, Res.images.week1.stageback.toTile());
-        s2d.addChild(bg);
+        addChild(bg);
 
         chart = Json.parse(sys.io.File.getContent("res/songs/" + curSong + "/chart.json"));
 
         boyfriend = new Character(0, 0, Paths.image("characters/BOYFRIEND"), "res/characters/BOYFRIEND");
         screenCenter(boyfriend, XY);
-        s2d.addChild(boyfriend);
+        addChild(boyfriend);
 
         opponent = new Character(0, 0, Paths.image("characters/DADDY_DEAREST"), "res/characters/DADDY_DEAREST");
         opponent.setPosition(Window.getInstance().width / 2 - opponent.getSize().width / 2 - 300, Window.getInstance().height / 2 - opponent.getSize().height / 2);
-        s2d.addChild(opponent);
+        addChild(opponent);
         
         for (i in 0...4) {
             var opponentStrum = new Strumline(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", i);
@@ -68,7 +68,7 @@ class PlayState extends MusicBeatState {
             opponentStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
             opponentStrum.x -= 410.5;
             opponentStrumGroup.push(opponentStrum);
-            s2d.add(opponentStrumGroup[i]);
+            addChild(opponentStrumGroup[i]);
 
             var noteSpawner:NoteSpawner = new NoteSpawner(opponentStrum);
             noteSpawnerGroup.push(noteSpawner);
@@ -80,7 +80,7 @@ class PlayState extends MusicBeatState {
             playerStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
             playerStrum.x += 260;
             playerStrumGroup.push(playerStrum);
-            s2d.add(playerStrumGroup[i]);
+            addChild(playerStrumGroup[i]);
 
             var noteSpawner:NoteSpawner = new NoteSpawner(playerStrum);
             noteSpawnerGroup.push(noteSpawner);
@@ -88,7 +88,7 @@ class PlayState extends MusicBeatState {
     
         for (noteSpawner in noteSpawnerGroup) {
             trace(noteSpawner.x);
-            s2d.addChild(noteSpawner);
+            addChild(noteSpawner);
         }
 
         /**
@@ -205,13 +205,13 @@ class PlayState extends MusicBeatState {
             inst.position = 0;
             vocals.stop();
             vocals.position = 0;
-            new OffsetEditor();
+            changeScene(new OffsetEditor());
         }
 
 
         for (note in noteGroup) {
             note.y = (note.time - Conductor.songPosition) * 0.45 * scrollSpeed;
-            if (Conductor.songPosition - note.time >= 0.0) {
+            if (Conductor.songPosition - note.time >= 0) {
                 noteGroup.remove(note);
                 note.remove();
 
@@ -240,9 +240,6 @@ class PlayState extends MusicBeatState {
         }
     }
     
-    /**
-     * FIXME: This just doesn't work. Will rework this later down the line anyways.
-     */
     function noteHit(strum:Array<Strumline>, direction:String, note:Int, ?goodHit:Bool) {
         strum[note].playStrumAnim(direction, goodHit);
         // strum == playerStrumGroup ? boyfriend.playAnim(note) : opponent.playAnim(note);

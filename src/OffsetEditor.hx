@@ -26,14 +26,15 @@ class OffsetEditor extends MusicBeatState {
 
     var animOffsets:Text;
 
-	override function init() {
+	public function new() {
+        super();
         var bg:Stage = new Stage(0, 0, Res.images.week1.stageback.toTile());
-        s2d.addChild(bg);
+        addChild(bg);
 
         var text:Text = new Text(DefaultFont.get());
         text.text = "Welcome to the Offset editor.\nUse WASD to change the animation.\nUse the arrow keys to offset the animation";
         text.setPosition(20, 20);
-        s2d.addChild(text);
+        addChild(text);
 
         switch(PlayState.offsetCharacter) {
             case "BOYFRIEND": 
@@ -47,14 +48,14 @@ class OffsetEditor extends MusicBeatState {
         char.playAnimation(animList[0]);
         trace(animList);
         idleTile = new Bitmap();
-        s2d.addChild(idleTile);
+        addChild(idleTile);
         setGhost();
         animOffsets = new Text(DefaultFont.get());
         animOffsets.setPosition(20, 100);
-        s2d.addChild(animOffsets);
+        addChild(animOffsets);
         
         char.setPosition(Window.getInstance().width / 2 - char.getSize().width / 2, Window.getInstance().height / 2 - char.getSize().height / 2);
-        s2d.addChild(char);
+        addChild(char);
 	}
 
 	/**
@@ -78,11 +79,11 @@ class OffsetEditor extends MusicBeatState {
         super.update(dt);
 
         if (Key.isDown(Key.Q)) {
-            s2d.camera.setScale(s2d.camera.scaleX - 0.01, s2d.camera.scaleY - 0.01);
+            camera.setScale(camera.scaleX - 0.01, camera.scaleY - 0.01);
         }
 
         if (Key.isDown(Key.E)) {
-            s2d.camera.setScale(s2d.camera.scaleX + 0.01, s2d.camera.scaleY + 0.01);
+            camera.setScale(camera.scaleX + 0.01, camera.scaleY + 0.01);
         }
 
         if (Key.isPressed(Key.A)) {

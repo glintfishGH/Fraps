@@ -1,3 +1,7 @@
+import hxd.res.DefaultFont;
+import h2d.Text;
+import h2d.Scene;
+import backend.MusicBeatState;
 import hxd.Window;
 import hxd.Key;
 import hxd.snd.Manager;
@@ -10,6 +14,11 @@ class Main extends App {
 	 */
 	public static var soundManager:Manager;
 
+	/**
+	 * The current Main instance.
+	 */
+	public static var ME:Main;
+
 	static function main() {
 		Res.initEmbed();
 
@@ -17,12 +26,9 @@ class Main extends App {
 		soundManager = Manager.get();
         soundManager.masterVolume = 0.5;
 
-		new InitState();
+		// Calls init().
+		new Main();
 
-		/**
-		 * Note that `new TitleState()` HAS to be called before adding event listeners.
-		 * Otherwise, the game crashes.
-		**/ 
 		Window.getInstance().addEventTarget(function (event) {
 			if (event.keyCode == Key.NUMPAD_SUB) {
 				managerMasterVolume(-0.1);
@@ -36,8 +42,21 @@ class Main extends App {
 	override function init() {
 		super.init();
 		trace("ran first init");
-		s2d.scaleMode = ScaleMode.AutoZoom(Window.getInstance().width, Window.getInstance().height);
-        s2d.defaultSmooth = true;
+		ME = this;
+
+		setScene(new TitleState());
+		
+		// ME.s2d.scaleMode = ScaleMode.AutoZoom(Window.getInstance().width, Window.getInstance().height);
+		// s2d.x = (Window.getInstance().width - s2d.width) / 2; 
+        // ME.s2d.defaultSmooth = true;
+	}
+
+	override function update(dt:Float) {
+		super.update(dt);
+		for (scene in MusicBeatState.scenesToUpdate) {
+			scene.update(dt);
+		}
+		// MusicBeatState.update();
 	}
 	
 	/**

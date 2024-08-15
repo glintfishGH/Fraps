@@ -3,9 +3,6 @@ import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Tile;
 
-/**
- * TODO: Change this so it extends AnimatedSprite.
- */
 class Strumline extends AnimatedSprite {
     public function new(x:Float, y:Float, image:Tile, xml:String, noteToDisplay:Int) {
         super(x, y, image, xml + ".xml");

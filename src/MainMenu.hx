@@ -1,13 +1,7 @@
 import backend.Paths;
-import hxd.snd.Channel;
-import h2d.TileGroup;
 import hxd.Key;
 import hxd.Window;
-import h2d.Tile;
-import hxd.BitmapData;
-import h2d.Camera;
 import objects.AnimatedSprite;
-import h3d.anim.Animation.AnimatedObject;
 import hxd.Res;
 import h2d.Bitmap;
 import backend.MusicBeatState;
@@ -30,11 +24,11 @@ class MainMenu extends MusicBeatState {
 
     var curSelected:Int = 0;
 
-    override function init() {
-        super.init();
-        
+    public function new() {
+        super();
+
         bg = new Bitmap(Paths.image("images/mainMenu/menuBG"));
-        s2d.addChild(bg);
+        addChild(bg);
 
         for (i in 0...3) {
             var menuOption:AnimatedSprite = new AnimatedSprite(0, 50 + 225 * i, Res.images.mainMenu.mainMenu_png.toTile(), "res/images/mainMenu/mainMenu.xml");
@@ -55,11 +49,12 @@ class MainMenu extends MusicBeatState {
         moveSelection(NONE);
 
         for (sprite in menuOptions) {
-            s2d.addChild(sprite);
+            addChild(sprite);
         }
     }
 
     override function update(dt:Float) {
+        super.update(dt);
         if (Key.isPressed(Key.DOWN)) {
             moveSelection(DOWN);
         }
@@ -68,9 +63,8 @@ class MainMenu extends MusicBeatState {
         }
         if (Key.isPressed(Key.ENTER)) {
             TitleState.song.pause = true;
-            new PlayState();
+            changeScene(new PlayState());
         }
-        super.update(dt);
     }
 
     function moveSelection(direction:Direction) {

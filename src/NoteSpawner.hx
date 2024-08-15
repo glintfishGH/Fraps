@@ -16,7 +16,7 @@ class NoteSpawner extends Object {
         var note = new Note(noteDir, time);
         note.parentSpawner = this;
         note.x = this.x;
-        PlayState.instance.s2d.addChild(note);
+        PlayState.instance.addChild(note);
         PlayState.instance.noteGroup.push(note);
     }
 }

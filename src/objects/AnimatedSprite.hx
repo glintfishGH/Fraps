@@ -52,7 +52,7 @@ class AnimatedSprite extends Bitmap {
     }
 
     /**
-     * FIXME: This does not work.
+     * FIXME: Offsets are *ever so slightly* incorrect
      */
     function addOffsetToAnimation(animationName:String, offset:Array<Int>) {
         for (frames in animations.get(animationName)) {

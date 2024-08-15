@@ -1,11 +1,12 @@
 package backend;
 
+import hxd.SceneEvents.InteractiveScene;
 import h2d.Scene;
-import slide.Slide;
-import hxd.Timer;
-import haxe.CallStack;
-import format.png.Data.Color;
 import h2d.Tile;
+import slide.easing.Quart;
+import slide.easing.Quad;
+import slide.tweens.Tween.EaseFunc;
+import slide.Slide;
 import h2d.Bitmap;
 import hxd.Window;
 import h2d.Object;
@@ -18,7 +19,9 @@ enum Axis {
 	XY;
 }
 
-class MusicBeatState extends App {
+class MusicBeatState extends Scene {
+	public static var scenesToUpdate:Array<MusicBeatState> = [];
+
 	private var curStep:Float = 0;
 	private var curBeat:Float = 0;
 	private var oldStep:Float;
@@ -28,13 +31,12 @@ class MusicBeatState extends App {
 	public var windowInstance:Window = Window.getInstance();
 	var flashSprite:Bitmap;
 
-	override public function init() {
-		super.init();
-		trace("eat my asssssss");
+	public function new() {
+		super();
+		trace("Opened new scene.");
 	}
 
-	override public function update(dt:Float) {
-		super.update(dt);
+	public function update(dt:Float) {
         Slide.step(dt);
 		if (attachedSong != null)
 			Conductor.songPosition = attachedSong.position * 1000;
@@ -47,6 +49,17 @@ class MusicBeatState extends App {
 		if (oldStep != curStep) {
 			stepHit();
 		}
+	}
+
+	override function onAdd() {
+		super.onAdd();
+		trace("added scene " + Type.getClassName(Type.getClass(this)).split('.').pop());
+
+		scaleMode = ScaleMode.AutoZoom(Window.getInstance().width, Window.getInstance().height);
+		// x = (Window.getInstance().width - width) / 2; 
+        defaultSmooth = true;
+
+		scenesToUpdate.push(this);
 	}
 
 	function updateStep() {
@@ -77,15 +90,17 @@ class MusicBeatState extends App {
 		}
 	}
 
-	// function flash(duration:Float, color:Int) {
-	// 	flashSprite.alpha = 1;
-	// 	s2d.addChild(flashSprite);
+	function flash(duration:Float, ?ease:EaseFunc) {
+		ease ?? Quart.easeInOut;
+		flashSprite = new Bitmap(Tile.fromColor(0xFFFFFFFF, Window.getInstance().width, Window.getInstance().height, 1));
+		add(flashSprite);
+		Slide.tween(flashSprite).to({alpha: 0}, duration).ease(Quad.easeOut).start();
+	}
 
-	// 	while (duration < 20) {
-	// 		duration += Timer.dt;
-	// 		trace(duration);
-	// 		trace("whileing");
-	// 		flashSprite.alpha = hxd.Math.lerp(1, 0, 0.06);
-	// 	}
-	// }
+	public function changeScene(scene:InteractiveScene, dispose:Bool = true) {
+		Main.ME.setScene(scene, true);
+		if (dispose) {
+			MusicBeatState.scenesToUpdate.remove(this);
+		}
+	}
 }
