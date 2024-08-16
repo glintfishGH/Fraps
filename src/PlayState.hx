@@ -155,10 +155,11 @@ class PlayState extends MusicBeatState {
                 case 3 | 7:
                     noteDir = RIGHT;
             }
+            var spawnerToTarget:Int = noteToSpawn[1];
             if (section.mustHitSection)
-                noteSpawnerGroup[noteToSpawn[1] + 4].spawnNote(noteDir, noteToSpawn[0]);
-            else 
-                noteSpawnerGroup[noteToSpawn[1]].spawnNote(noteDir, noteToSpawn[0]);
+                spawnerToTarget += 4;
+
+            noteSpawnerGroup[spawnerToTarget].spawnNote(noteDir, noteToSpawn[0]);
 
             if (section.sectionNotes.length != 0)
                 section.sectionNotes.remove(noteToSpawn);
