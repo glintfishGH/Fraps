@@ -6,7 +6,7 @@ import h2d.Object;
  */
 class NoteSpawner extends Object {
 
-    public function new(attachedStrum:Strumline) {
+    public function new(attachedStrum:Strumnote) {
         super();
         this.x = attachedStrum.x;
         this.y = 500;

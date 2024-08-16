@@ -1,3 +1,4 @@
+import backend.MusicBeatState;
 import h3d.mat.BlendMode;
 import h3d.mat.Material;
 import hxd.Key;
@@ -5,10 +6,10 @@ import h3d.scene.Mesh;
 import h3d.prim.Cube;
 import hxd.App;
 
-class TestState extends App {
+class TestState extends MusicBeatState {
     var mesh:Mesh;
-    override function init() {
-        super.init();
+    public function new() {
+        super();
         var cube:Cube = new Cube();
         cube.translate(-0.5, -0.5, -0.5);
         cube.addUVs();
@@ -17,14 +18,14 @@ class TestState extends App {
 
         var mat = h3d.mat.Material.create(tex);
 
-        mesh = new Mesh(cube, mat, s3d);
-        s3d.addChild(mesh);
+        mesh = new Mesh(cube, mat, Main.ME.s3d);
+        Main.ME.s3d.addChild(mesh);
 
         // Yes this was copied off the heaps tutorial page
     }
 
     override function update(dt:Float) {
         if (Key.isPressed(Key.SPACE))
-            new PlayState();
+            changeScene(new PlayState());
     }
 }

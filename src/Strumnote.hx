@@ -1,9 +1,11 @@
+import Note.NoteDir;
+import haxe.ds.Either;
 import objects.AnimatedSprite;
 import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Tile;
 
-class Strumline extends AnimatedSprite {
+class Strumnote extends AnimatedSprite {
     public function new(x:Float, y:Float, image:Tile, xml:String, noteToDisplay:Int) {
         super(x, y, image, xml + ".xml");
         this.x = x;

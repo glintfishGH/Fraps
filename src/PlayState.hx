@@ -14,6 +14,12 @@ import backend.*;
 import hxd.snd.Channel;
 import hxd.Window;
 
+// typedef NoteData = {
+//     var time:Float;
+//     var strum:Int;
+//     var sustainLength:Float;
+// }
+
 typedef SectionData = {
     var sectionNotes:Array<Array<Dynamic>>;
     var lengthInSteps:Int;
@@ -38,8 +44,8 @@ class PlayState extends MusicBeatState {
     private var opponent:Character;
     private var bg:Stage;
 
-    public var playerStrumGroup:Array<Strumline> = [];
-    public var opponentStrumGroup:Array<Strumline> = [];
+    public var playerStrumGroup:Array<Strumnote> = [];
+    public var opponentStrumGroup:Array<Strumnote> = [];
 
     var noteSpawnerGroup:Array<NoteSpawner> = [];
     public var noteGroup:Array<Note> = [];
@@ -82,7 +88,7 @@ class PlayState extends MusicBeatState {
         addChild(opponent);
         
         for (i in 0...4) {
-            var opponentStrum = new Strumline(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", i);
+            var opponentStrum = new Strumnote(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", i);
             var strumWidth = opponentStrum.animations.get("staticLeft")[0].width;
             opponentStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
             opponentStrum.x -= 410.5;
@@ -94,7 +100,7 @@ class PlayState extends MusicBeatState {
         }
 
         for (i in 0...4) {
-            var playerStrum = new Strumline(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", i);
+            var playerStrum = new Strumnote(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", i);
             var strumWidth = playerStrum.animations.get("staticLeft")[0].width;
             playerStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
             playerStrum.x += 260;
@@ -182,41 +188,43 @@ class PlayState extends MusicBeatState {
         noteHit(opponentStrumGroup, "Down", 1);
         noteHit(opponentStrumGroup, "Up", 2);
         noteHit(opponentStrumGroup, "Right", 3);
-
     }
 
     override function update(dt:Float) {
         super.update(dt);
 
-        trace(noteGroup);
-        if (chartSectionData[0].sectionNotes[0][0] - 1000 <= Conductor.songPosition) {
-            trace("Spawning new note");
-            var section = chartSectionData[0];
-            var noteDir:NoteDir = LEFT;
-            var noteToSpawn = section.sectionNotes[0];
+        trace("Song progression: " + Conductor.songPosition / inst.duration / 1000);
 
-            switch(noteToSpawn[1]) {
-                case 0 | 4:
-                    noteDir = LEFT;
-                case 1 | 5:
-                    noteDir = DOWN;
-                case 2 | 6:
-                    noteDir = UP;
-                case 3 | 7:
-                    noteDir = RIGHT;
+        if (chartSectionData[0].sectionNotes.length != 0) {
+            if (chartSectionData[0].sectionNotes[0][0] - 1000 <= Conductor.songPosition) {
+                trace("Spawning new note");
+                var section = chartSectionData[0];
+                var noteDir:NoteDir = LEFT;
+                var noteToSpawn = section.sectionNotes[0];
+    
+                switch(noteToSpawn[1]) {
+                    case 0 | 4:
+                        noteDir = LEFT;
+                    case 1 | 5:
+                        noteDir = DOWN;
+                    case 2 | 6:
+                        noteDir = UP;
+                    case 3 | 7:
+                        noteDir = RIGHT;
+                }
+                
+                var spawnerToTarget:Int = noteToSpawn[1];
+                if (section.mustHitSection)
+                    spawnerToTarget += 4;
+    
+                noteSpawnerGroup[spawnerToTarget].spawnNote(noteDir, noteToSpawn[0]);
+    
+                if (section.sectionNotes.length != 0)
+                    section.sectionNotes.remove(noteToSpawn);
+                 
+                if (section.sectionNotes.length == 0)
+                    chartSectionData.remove(section);
             }
-            
-            var spawnerToTarget:Int = noteToSpawn[1];
-            if (section.mustHitSection)
-                spawnerToTarget += 4;
-
-            noteSpawnerGroup[spawnerToTarget].spawnNote(noteDir, noteToSpawn[0]);
-
-            if (section.sectionNotes.length != 0)
-                section.sectionNotes.remove(noteToSpawn);
-             
-            if (section.sectionNotes.length == 0)
-                chartSectionData.remove(section);
         }
 
         if (Key.isPressed(Key.LEFT)) {
@@ -301,7 +309,7 @@ class PlayState extends MusicBeatState {
         }
     }
     
-    function noteHit(strum:Array<Strumline>, direction:String, note:Int, ?goodHit:Bool) {
+    function noteHit(strum:Array<Strumnote>, direction:String, note:Int, ?goodHit:Bool) {
         strum[note].playStrumAnim(direction, goodHit);
         // strum == playerStrumGroup ? boyfriend.playAnim(note) : opponent.playAnim(note);
     }
