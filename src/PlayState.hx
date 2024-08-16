@@ -14,6 +14,15 @@ import backend.*;
 import hxd.snd.Channel;
 import hxd.Window;
 
+typedef SectionData = {
+    var sectionNotes:Array<Array<Dynamic>>;
+    var lengthInSteps:Int;
+    var bpm:Float;
+    var mustHitSection:Bool;
+    var altAnim:Bool;
+    var changeBPM:Bool;
+}
+
 class PlayState extends MusicBeatState {
 
     // DEBUG
@@ -35,7 +44,7 @@ class PlayState extends MusicBeatState {
     var noteSpawnerGroup:Array<NoteSpawner> = [];
     public var noteGroup:Array<Note> = [];
 
-    var noteTimeData:Array<Array<Dynamic>> = [];
+    var chartSectionData:Array<SectionData> = [];
 
     var scrollSpeed:Float = 1.3;
     var maxNoteSpawn:Int = 6;
@@ -111,27 +120,30 @@ class PlayState extends MusicBeatState {
         GLGU.startStamp();
         for (i in 0...chart.song.notes.length) {
             // Easier to write.
-            var sectionData = chart.song.notes[i];
+            var sectionData:Dynamic = chart.song.notes[i];
 
-            for (i in 0...sectionData.sectionNotes.length) {
-                /**
-                 * noteData refers to the notes in sectionNotes.
-                 * [time, strum, sustainLength]
-                 * time - noteData[0]
-                 * strum - noteData[1]
-                 * sustainLength - noteData[2]
-                 */ 
-                var noteData = sectionData.sectionNotes[i];
-                noteTimeData.push(noteData);
-            }
+            var sectionNotesData:Array<Array<Dynamic>> = sectionData.sectionNotes;
+            sectionNotesData.sort((a, b) -> Std.int(a[0] - b[0]));
+
+            var _sectionData:SectionData = {
+                sectionNotes: sectionNotesData,
+                lengthInSteps: sectionData.lengthInSteps,
+                bpm: sectionData.bpm,
+                mustHitSection: sectionData.mustHitSection,
+                changeBPM: sectionData.changeBPM,
+                altAnim: sectionData.altAnim
+            };
+            chartSectionData.push(_sectionData);
         }
-        noteTimeData.sort((a, b) -> Std.int(a[0] - b[0]));
-        trace(noteTimeData); 
+
+        trace(chartSectionData); 
 
         while (maxNoteSpawn > 0) {
-            // trace(noteTimeData.shift()[1]);
+            var section = chartSectionData[0];
+            trace(section);
             var noteDir:NoteDir = LEFT;
-            var noteToSpawn = noteTimeData.shift();
+            var noteToSpawn = section.sectionNotes[0];
+            trace(noteToSpawn);
 
             switch(noteToSpawn[1]) {
                 case 0 | 4:
@@ -143,8 +155,16 @@ class PlayState extends MusicBeatState {
                 case 3 | 7:
                     noteDir = RIGHT;
             }
-            noteSpawnerGroup[noteToSpawn[1]].spawnNote(noteDir, noteToSpawn[0]);
-            trace(noteToSpawn);
+            if (section.mustHitSection)
+                noteSpawnerGroup[noteToSpawn[1] + 4].spawnNote(noteDir, noteToSpawn[0]);
+            else 
+                noteSpawnerGroup[noteToSpawn[1]].spawnNote(noteDir, noteToSpawn[0]);
+
+            if (section.sectionNotes.length != 0)
+                section.sectionNotes.remove(noteToSpawn);
+             
+            if (section.sectionNotes.length == 0)
+                chartSectionData.remove(section);
             maxNoteSpawn--;
             Sys.sleep(0.001); // Dont kill my pc please
         }
@@ -167,13 +187,12 @@ class PlayState extends MusicBeatState {
     override function update(dt:Float) {
         super.update(dt);
 
-        if (noteTimeData[0][0] - 1000 <= Conductor.songPosition) {
-            trace("should spawn new note!");
+        trace(noteGroup);
+        if (chartSectionData[0].sectionNotes[0][0] - 1000 <= Conductor.songPosition) {
+            trace("Spawning new note");
+            var section = chartSectionData[0];
             var noteDir:NoteDir = LEFT;
-
-            var noteToSpawn = noteTimeData[0];
-
-            trace(noteToSpawn);
+            var noteToSpawn = section.sectionNotes[0];
 
             switch(noteToSpawn[1]) {
                 case 0 | 4:
@@ -185,9 +204,18 @@ class PlayState extends MusicBeatState {
                 case 3 | 7:
                     noteDir = RIGHT;
             }
-            noteSpawnerGroup[noteToSpawn[1]].spawnNote(noteDir, noteToSpawn[0]);
-            trace(noteToSpawn[0], Conductor.songPosition, noteToSpawn[0] - Conductor.songPosition <= 3500);
-            noteTimeData.remove(noteToSpawn);
+            
+            var spawnerToTarget:Int = noteToSpawn[1];
+            if (section.mustHitSection)
+                spawnerToTarget += 4;
+
+            noteSpawnerGroup[spawnerToTarget].spawnNote(noteDir, noteToSpawn[0]);
+
+            if (section.sectionNotes.length != 0)
+                section.sectionNotes.remove(noteToSpawn);
+             
+            if (section.sectionNotes.length == 0)
+                chartSectionData.remove(section);
         }
 
         if (Key.isPressed(Key.LEFT)) {
