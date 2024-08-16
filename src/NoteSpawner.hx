@@ -2,7 +2,7 @@ import Note.NoteDir;
 import h2d.Object;
 
 /**
- * TODO: This doesn't function as it should... Too bad!
+ * TODO: Move functions related to note spawning from PlayState to here.
  */
 class NoteSpawner extends Object {
 

@@ -1,3 +1,5 @@
+import glibs.GLGU;
+import h2d.Camera;
 import glibs.GLDebugTools;
 import Note.NoteDir;
 import sys.thread.Thread;
@@ -36,10 +38,14 @@ class PlayState extends MusicBeatState {
     var noteTimeData:Array<Array<Dynamic>> = [];
 
     var scrollSpeed:Float = 1.3;
+    var maxNoteSpawn:Int = 6;
 
     public static var instance:PlayState;
 
     var needToUpdateStep:Bool = false;
+
+    var camGame:Camera;
+    var camHUD:Camera;
 
     public function new() {
         super();
@@ -48,6 +54,10 @@ class PlayState extends MusicBeatState {
         loadSong();
 
         Conductor.changeBPM(120);
+
+        camHUD = new Camera(this);
+
+        addCamera(camHUD);
 
         bg = new Stage(0, 0, Res.images.week1.stageback.toTile());
         addChild(bg);
@@ -97,6 +107,8 @@ class PlayState extends MusicBeatState {
          * 
          * first we have to iterate over all of those to get the section notes.
          */
+
+        GLGU.startStamp();
         for (i in 0...chart.song.notes.length) {
             // Easier to write.
             var sectionData = chart.song.notes[i];
@@ -109,39 +121,34 @@ class PlayState extends MusicBeatState {
                  * strum - noteData[1]
                  * sustainLength - noteData[2]
                  */ 
-
                 var noteData = sectionData.sectionNotes[i];
                 noteTimeData.push(noteData);
-
-                /**
-                 * Most of this codebase refers to FPS Plus and how it works.
-                 * Since FPS Plus uses the legacy chart format, it comes with its kinks.
-                 * If only one side has notes in a section, it'll use strums 0, 1, 2 and 3 for both the opponent and player
-                 * but if its a mustHitSection, it'll ues 4, 5, 6 and 7?
-                 * This is dumb.
-                 */
-
-                var noteDir:NoteDir = LEFT;
-
-                switch(noteData[1]) {
-                    case 0 | 4:
-                        noteDir = LEFT;
-                    case 1 | 5:
-                        noteDir = DOWN;
-                    case 2 | 6:
-                        noteDir = UP;
-                    case 3 | 7:
-                        noteDir = RIGHT;
-                }
-                /**
-                 * "this will definitely come and bite me in the ass later" -Glint
-                 */
-                if (sectionData.mustHitSection && noteData[1] <= 3) {
-                    noteSpawnerGroup[noteData[1] + 4].spawnNote(noteDir, noteData[0]);
-                }
-                else noteSpawnerGroup[noteData[1]].spawnNote(noteDir, noteData[0]);
             }
         }
+        noteTimeData.sort((a, b) -> Std.int(a[0] - b[0]));
+        trace(noteTimeData); 
+
+        while (maxNoteSpawn > 0) {
+            // trace(noteTimeData.shift()[1]);
+            var noteDir:NoteDir = LEFT;
+            var noteToSpawn = noteTimeData.shift();
+
+            switch(noteToSpawn[1]) {
+                case 0 | 4:
+                    noteDir = LEFT;
+                case 1 | 5:
+                    noteDir = DOWN;
+                case 2 | 6:
+                    noteDir = UP;
+                case 3 | 7:
+                    noteDir = RIGHT;
+            }
+            noteSpawnerGroup[noteToSpawn[1]].spawnNote(noteDir, noteToSpawn[0]);
+            trace(noteToSpawn);
+            maxNoteSpawn--;
+            Sys.sleep(0.001); // Dont kill my pc please
+        }
+        GLGU.endStamp();
         scrollSpeed = chart.song.speed * 1.35;
 
         // Ass code but it works for now
@@ -159,6 +166,29 @@ class PlayState extends MusicBeatState {
 
     override function update(dt:Float) {
         super.update(dt);
+
+        if (noteTimeData[0][0] - 1000 <= Conductor.songPosition) {
+            trace("should spawn new note!");
+            var noteDir:NoteDir = LEFT;
+
+            var noteToSpawn = noteTimeData[0];
+
+            trace(noteToSpawn);
+
+            switch(noteToSpawn[1]) {
+                case 0 | 4:
+                    noteDir = LEFT;
+                case 1 | 5:
+                    noteDir = DOWN;
+                case 2 | 6:
+                    noteDir = UP;
+                case 3 | 7:
+                    noteDir = RIGHT;
+            }
+            noteSpawnerGroup[noteToSpawn[1]].spawnNote(noteDir, noteToSpawn[0]);
+            trace(noteToSpawn[0], Conductor.songPosition, noteToSpawn[0] - Conductor.songPosition <= 3500);
+            noteTimeData.remove(noteToSpawn);
+        }
 
         if (Key.isPressed(Key.LEFT)) {
             newNoteHit(boyfriend, "left");
@@ -214,6 +244,8 @@ class PlayState extends MusicBeatState {
             if (Conductor.songPosition - note.time >= 0) {
                 noteGroup.remove(note);
                 note.remove();
+                
+                // trace("hit note at time " + note.time, Conductor.songPosition);
 
                 if (note.parentSpawner == noteSpawnerGroup[0]) 
                         newNoteHit(opponent, "left");
