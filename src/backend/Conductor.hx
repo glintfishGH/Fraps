@@ -18,7 +18,7 @@ class Conductor
 	/**
 	 * Beats per minute.
 	 */
-	public static var bpm:Float = 100;
+	public static var bpm:Float = 120;
 
 	/**
 	 * Beats in miliseconds.

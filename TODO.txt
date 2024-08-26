@@ -1,5 +1,3 @@
-- Add other states (WIP)
 - Add alphabet
-- Fix offset editor (Will likely be rewritten entirely)
 - Add cameras
 	- Add UI

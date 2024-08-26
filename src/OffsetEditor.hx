@@ -28,7 +28,7 @@ class OffsetEditor extends MusicBeatState {
 
 	public function new() {
         super();
-        var bg:Stage = new Stage(0, 0, Res.images.week1.stageback.toTile());
+        var bg:Stage = new Stage(0, 0, Paths.image("images/week1/wall"));
         addChild(bg);
 
         var text:Text = new Text(DefaultFont.get());
@@ -36,12 +36,7 @@ class OffsetEditor extends MusicBeatState {
         text.setPosition(20, 20);
         addChild(text);
 
-        switch(PlayState.offsetCharacter) {
-            case "BOYFRIEND": 
-                char = new Character(0, 0, Paths.image("characters/BOYFRIEND"), "res/characters/BOYFRIEND");
-            case "DADDY_DEAREST":
-                char = new Character(0, 0, Paths.image("characters/DADDY_DEAREST"), "res/characters/DADDY_DEAREST");
-        }
+        char = new Character(0, 0, Paths.image('characters/${PlayState.offsetCharacter}'), 'res/characters/${PlayState.offsetCharacter}');
         for (anim in char.animations.keys()) {
             animList.push(anim);
         }
@@ -78,30 +73,21 @@ class OffsetEditor extends MusicBeatState {
     override function update(dt:Float) {
         super.update(dt);
 
-        if (Key.isDown(Key.Q)) {
-            camera.setScale(camera.scaleX - 0.01, camera.scaleY - 0.01);
-        }
+        if (Key.isDown(Key.Q)) camera.setScale(camera.scaleX - 0.01, camera.scaleY - 0.01);
 
-        if (Key.isDown(Key.E)) {
-            camera.setScale(camera.scaleX + 0.01, camera.scaleY + 0.01);
-        }
+        if (Key.isDown(Key.E)) camera.setScale(camera.scaleX + 0.01, camera.scaleY + 0.01);
 
         if (Key.isPressed(Key.A)) {
             animationIndex--;
-            if (animationIndex < 0) {
-                animationIndex = animList.length - 1;
-            }
+            if (animationIndex < 0) animationIndex = animList.length - 1;
             char.playAnimation(animList[animationIndex]);
         }
-        if (Key.isDown(Key.SHIFT)) {
-            moveAmount = 10;
-        }
-        else moveAmount = 1;
+        if (Key.isDown(Key.SHIFT)) moveAmount = 10;
+                              else moveAmount = 1;
+
         if (Key.isPressed(Key.D)) {
             animationIndex++;
-            if (animationIndex > animList.length - 1) {
-                animationIndex = 0;
-            }
+            if (animationIndex > animList.length - 1) animationIndex = 0;
             char.playAnimation(animList[animationIndex]);
         }
 
@@ -127,6 +113,10 @@ class OffsetEditor extends MusicBeatState {
             for (frame in char.animations.get(animList[animationIndex])) {
                 frame.dy -= moveAmount;
             }
+        }
+
+        if (Key.isPressed(Key.ENTER)) {
+            changeScene(new PlayState());
         }
         updateOffsetText();
     }

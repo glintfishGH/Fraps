@@ -1,3 +1,4 @@
+import objects.Sprite;
 import hxd.Res;
 import h2d.Tile;
 import h2d.Bitmap;
@@ -10,6 +11,7 @@ enum abstract NoteDir(String) from String to String {
 }
 
 class Note extends Bitmap {
+    var noteHoldTimer:Float;
     public var time:Float;
     public var parentSpawner:NoteSpawner;
     public function new(note:NoteDir, time:Float) {

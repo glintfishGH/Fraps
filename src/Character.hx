@@ -7,7 +7,7 @@ class Character extends AnimatedSprite {
     var charNameIsolated:String;
     public var playingAnim:Bool;
 
-    var holdTimer:Timer;
+    public var holdTimer:Float;
 
     /**
      * In miliseconds.
@@ -15,10 +15,8 @@ class Character extends AnimatedSprite {
     var noteHoldTime:Int = 700;
 
     public function new(x:Float, y:Float, image:Tile, ?xmlPath:String) {
-        super(x, y, image, xmlPath + ".xml");
+        super(x, y, image, xmlPath);
         charNameIsolated = xmlPath;
-
-        holdTimer = new Timer(noteHoldTime);
 
         animation.loop = false;
 
@@ -47,10 +45,14 @@ class Character extends AnimatedSprite {
                 addOffsetToAnimation("right",   [4,  -31]);
                 addOffsetToAnimation("left",    [7, -11]);
 
-            case "res/characters/gfDanceTitle":
-                addAnimation("idle", "gfDance");
+            case "res/characters/girlfriend":
+                // addAnimation("idle", "GF Dancing Beat");
+                addAnimationByIndices("danceRight", "GF Dancing Beat", [for (i in 0...15) i]);
+                addAnimationByIndices("danceLeft", "GF Dancing Beat", [for (i in 16...30) i]);
+            default:
         }
-        playAnimation("idle");
+        if (animations.exists("idle")) playAnimation("idle");
+        else trace("No idle exists for this character!");
     }
 
     public function dance() {
@@ -58,23 +60,25 @@ class Character extends AnimatedSprite {
             animation.play(animations.get("idle"));
     }
 
+    override function update(dt:Float) {
+        super.update(dt);
+        if (playingAnim) holdTimer += dt;
+        if (holdTimer > 0.5) {
+            holdTimer = 0;
+            playingAnim = false;
+            GLogger.info("Resetting to idle");
+            this.playAnimation("idle");
+        }
+    }
+
     override function playAnimation(name:String) {
         super.playAnimation(name);
 
-        // playingAnim = true;
+        GLogger.info("Playing animation - " + name);
 
-        /**
-         * Calling `holdTimer.stop()` doesn't allow us to run the timer function again, so we create a new instance.
-         * FIXME: This causes a memory leak... too bad!
-         */
-        // if (name != "idle" && playingAnim) {
-        //     holdTimer.run = function() {
-        //         playingAnim = false;
-        //         dance();
-                
-        //         // do nothing fuckass
-        //         holdTimer.run = function() {}
-        //     }
-        // }
+        if (name != "idle") {
+            playingAnim = true;
+            holdTimer = 0;
+        }
     }
 }
