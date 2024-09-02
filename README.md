@@ -1,21 +1,83 @@
-# FNF on Heaps
+# Fraps / FNF on Heaps
 
-A new Friday Night Funkin' engine made with Heaps! Yeah, not Haxeflixel, but Heaps!
-Made by Glintfish, and (as of writing) exclusively Glintfish.
+A brand new Friday Night Funkin' engine made exclusively for hardcoding. A major drawback of most FNF engines nowadays are severe lack of source code documentation, source modding, and their insistence on using softmodding to work with them. A lot of them also include all of the Base Game assets, which clutter up your repo and the code.
 
-This engine is meant to serve as an alternative to other engines, like [Psych Engine](https://github.com/ShadowMario/FNF-PsychEngine) without the intense bloat and softmoddability, [FPS Plus](https://github.com/ThatRozebudDude/FPS-Plus-Public/tree/master) without the high memory usage, [Forever Engine](https://github.com/silvashp/Forever-Engine-Legacy) without the... actually, I don't know, I never used this engine.
+(As of writing, Fraps is aiming to recreate B-Side Redux as a form of reference. Most if not all assets from it will be removed after completion.)
+
+---
 
 ## What is Heaps?
 
-Heaps is a haxe, cross platform engine made for high performance games. It supports both 2D and 3D, and it's been used to make a ton of games, such as Dead Cells. You can find more, open-source games at [Heaps.io](https://heaps.io/documentation/full-game-samples.html)
+Heaps is a cross-platform game engine built by Nicolas Cannasse, the original creator of the Haxe compiler and designer for the Haxe language.
 
-## How do I install and run FNF on Heaps?
-### ***THIS WILL BE ADDED SOON!***
-For now, you may read through the source code, or try and compile it yourself until I make a tutorial / guide for the more uneducated folk.
+Primarily used by Shiro Games, it is open source, but not community driven. Features are implemented as needed, so if something you want / need is not already part of Heaps, you will most likely need to implement it yourself.
 
---------------------------
-# P.S.
-### It needs to be noted that I am only making this engine open-source at such an early stage is because I am very much open to suggestions, improvements, and more, especially when it comes to stuff like this.
-### You may see shitty code somewhere (or everywhere), and that's okay. Please don't write to me or make PRs regarding "bad code" unless I don't change it or improve it for some time (I either forgot or genuinely think what I wrote is good). I have a very weird style of coding, where I'll just make something work, doesn't matter how, it just has to work. I basically just build the foundation of everything, move on to something else, then, when needed, I go back and rewrite the older parts.
+Heaps is NOT for people who don't know how to work with a low level engine, unlike Flixel where most of the heavy lifting is done for you when it comes to setting up.
 
-### Another thing is that I'm mainly making this engine to learn Heaps and more proper game development outside of modding. I don't actually know how good this engine will be to use, if people will use it at all, or if it'll just be thrown into the "Engines people don't even look at" area, and again, that's okay. I appreciate anyone and everyone who stops by to check this engine out!
+Most of this also applies to Fraps itself. It is made by me (Glintfish) for my own personal use, used for my own mods, and do not recommend it to people who don't know what they're doing.
+
+# Installing Fraps
+
+First off, you ***HAVE*** to install Haxe that is version 4.3 or higher. If you want to make sure you're completely consistent with me, you can install [Haxe V4.3.4](https://haxe.org/download/version/4.3.4/).
+
+You'll then have to install Hashlink. Its a tiny bit more annoying to set up though.
+
+First off, go to the [Hashlink website](https://hashlink.haxe.org/#download) and click "Download latest binary release". This will take you to the GitHub releases. Download the latest version of Hashlink (NOT the Nightly Build). 
+Once it's installed, make a folder somewhere (doesn't matter where, but it should probably go into the same folder as your haxe install).
+
+- Extract the files from the ZIP into the folder.
+- Copy the path of the folder.
+- Press the Windows key and type in "System variables".
+- At the bottom of the window, click "Environment Variables".
+- Find `Path` (either for the User or System).
+- Click it and click Edit.
+- In the new window, click New and paste the path of the folder where Hashlink is installed
+
+To confirm you have Hashlink installed and correctly configured, open up Command Prompt and type in ``hl``. You should get something like this
+
+![hashlinkInstall](github/hl.png)
+
+After installing Haxe and Hashlink, you will need to install Heaps and its dependencies.
+
+Paste these into Command Prompt:
+
+- ``haxelib install hlopenal``
+- ``haxelib install hlsdl``
+- ``haxelib install hldx``
+
+And specifically for Fraps, you'll need [Slide](https://lib.haxe.org/p/slide/)
+
+- ``haxelib install slide 0.2.2``
+
+You're almost done!
+
+## Configuring VSCode
+While VSCode isn't a necessity, it is generally the most recommended for Haxe development, as it is the most supported. If you don't want to use VSCode, feel free to skip these steps, although most of the tutorial will assume you're using it.
+
+To work with Fraps (or any Haxe / Heaps project), you'll need to install a few extensions. Those being:
+- Haxe
+- Haxe Extension Pack
+
+And that's it!
+
+# Compiling Fraps
+
+After cloning the repository and configuring VSCode, extract the files into a folder, then open the project in VSCode.
+
+The main thing we care about are `buildhl.hxml` and `buildc.hxml`. These are the files that shorten down our compiler arguments when compiling, and makes compiling a breeze.
+
+In the bottom left of the VSCode window, you should see something like this:
+
+![bottomVSC](github/bottomVSC.png)
+
+If not already, change `buildhl.hxml` to... `buildhl.hxml`. That is your configuration for compiling. `buildhl.hxml` tells Haxe that you want to compile the program to the Hashlink target, while `buildc.hxml` readies the game to be compiled to C.
+
+(A section on compiling to C will be added later)
+
+Whenever you want to compile, press the F5 key, and after a few seconds, the engine will run! Hooray!
+
+You're now ready to start modding Fraps.
+
+# Quick PS
+
+Fraps is still early in development. It is NOT meant to be used for mods at the moment, as there is still LOTS to be done. Be patient please :]
