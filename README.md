@@ -14,11 +14,11 @@ Primarily used by Shiro Games, it is open source, but not community driven. Feat
 
 Heaps is NOT for people who don't know how to work with a low level engine, unlike Flixel where most of the heavy lifting is done for you when it comes to setting up.
 
-Most of this also applies to Fraps itself. It is made by me (Glintfish) for my own personal use, used for my own mods, and do not recommend it to people who don't know what they're doing.
+Most of this also applies to Fraps itself. It is made by me (Glintfish) for my own personal use, used for my own mods, and I do not recommend it to people who don't know what they're doing.
 
 # Installing Fraps
 
-First off, you ***HAVE*** to install Haxe that is version 4.3 or higher. If you want to make sure you're completely consistent with me, you can install [Haxe V4.3.4](https://haxe.org/download/version/4.3.4/).
+First off, you ***HAVE*** to install Haxe that is version 4.3 or higher. I'd recommend using version [4.3.4](https://haxe.org/download/version/4.3.4/), as thats the version I'm using.
 
 You'll then have to install Hashlink. Its a tiny bit more annoying to set up though.
 
