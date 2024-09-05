@@ -1,5 +1,6 @@
 package menus;
 
+import objects.Note;
 import hxd.res.DefaultFont;
 import h2d.Text;
 import haxe.Timer;
@@ -18,7 +19,6 @@ class TitleState extends MusicBeatState {
     var entered:Bool = false;
 
     var bg:Bitmap;
-
     public function new() {
         super();
 

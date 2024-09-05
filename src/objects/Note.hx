@@ -1,5 +1,6 @@
 package objects;
 
+import h2d.SpriteBatch;
 import h2d.TileGroup;
 import objects.SustainNote;
 import objects.Sprite;
@@ -17,7 +18,7 @@ enum abstract NoteDir(String) from String to String {
 /**
  * A pressable note object.
  */
-class Note extends TileGroup {
+class Note extends SpriteBatch {
     /**
      * Direction of this note.
      */
@@ -36,35 +37,43 @@ class Note extends TileGroup {
     public var time:Float;
     public var length:Int;
 
-    public var note:Tile;
+    public var note:Bitmap;
     public var sustain:SustainNote;
+    public var downscroll:Bool = true;
+
+    public var batchNote:BatchElement;
+    public var batchSustain:BatchElement;
+
 
     /**
      * The note spawner that spawned this note.
      */
     public var parentSpawner:NoteSpawner;
     public function new(noteDirection:NoteDir, time:Float, length:Int) {
-        super();
         this.time = time;
         this.noteDirection = noteDirection;
         this.length = length;
-        loadNote(noteDirection);
-        invalidate();
         this.y = time;
+        loadNote(noteDirection);
+        super(note.tile);
     }
 
     private function loadNote(noteDirection:NoteDir) {
-        note = Paths.image("gameplay/" + noteDirection, true);
+        note = new Bitmap(Paths.image("gameplay/" + noteDirection, true));
         if (length != 0) {
             var sustainNote:SustainNote = new SustainNote(noteDirection, time, length);
             var sustainYPos:Float;
-            if (PlayState.ME.downscroll) sustainYPos = note.y + note.height / 2 - sustainNote.getSize().height;
-            else sustainYPos = note.y + note.height / 2; 
-            add(note.x + (note.width - sustainNote.tile.width) / 2, 
-                sustainYPos, 
-                sustainNote.tile);
+
+            if (this.downscroll) sustainYPos = note.y + note.getSize().height / 2 - sustainNote.getSize().height;
+            else sustainYPos = note.y + note.getSize().height / 2; 
+
+            batchSustain = alloc(sustainNote.tile);
+            batchSustain.x = (note.getSize().width - sustainNote.getSize().width ) / 2;
+            batchSustain.y = sustainYPos;
+            add(batchSustain);
         }
-        add(note.x, note.y, note);
+        batchNote = alloc(note.tile);
+        add(batchNote);
     }
 
     /**

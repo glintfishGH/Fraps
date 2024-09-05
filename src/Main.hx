@@ -51,7 +51,7 @@ class Main extends App {
 				managerMasterVolume(0.1);
 			}
 		});
-		Window.getInstance().vsync = false;
+		// Window.getInstance().vsync = false;
 
 		setScene(new Cache());
 	}
@@ -70,6 +70,7 @@ class Main extends App {
 	}
 
 	override function onContextLost() {
+		trace("lost context");
 		super.onContextLost();
 	}
 	

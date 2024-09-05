@@ -146,11 +146,11 @@ class PlayState extends MusicBeatState {
         
         var noteCorrection:Array<Int> = [4, 5, 6, 7, 0, 1, 2, 3];
 
-        for (i in 0...chart.notes.normal.length) {
+        for (i in 0...chart.notes.hard.length) {
             /**
              * Current section we're parsing.
              */
-            var curSection:Dynamic = chart.notes.normal[i];
+            var curSection:Dynamic = chart.notes.hard[i];
 
             var noteDataArray:Array<SongInfo.NoteData> = [];
             
@@ -333,7 +333,7 @@ class PlayState extends MusicBeatState {
 
             Slide.stop(camGame);
             Slide.tween(camGame)
-            .to({x: cameraTarget.x + cameraTarget.getSize().width / 2, y: cameraTarget.y + cameraTarget.getSize().height / 2}, chartEventData[0][0].duration)
+            .to({x: cameraTarget.x + cameraTarget.getSize().width / 2, y: cameraTarget.y + cameraTarget.getSize().height / 2}, chartEventData[0][0].duration / 2)
             .ease(Expo.easeOut)
             .start();
         }
@@ -396,18 +396,31 @@ class PlayState extends MusicBeatState {
         for (note in noteGroup) {
             var notePos:Float = (note.time - Conductor.songPosition) * 0.45 * note.scrollSpeed;
             note.y = note.parentSpawner.attachedStrum.y;
-            note.y += (!downscroll) ? notePos : -notePos;
+            note.y += (!note.downscroll) ? notePos : -notePos;
             note.x = note.parentSpawner.attachedStrum.x;
 
             if (Conductor.songPosition >= note.time && note.ID < 4) {
-                noteGroup.remove(note);
-                note.remove();
-
-                charPlayAnim(opponent, note.getPureDirection().toLowerCase());
                 noteHit(opponentStrumGroup, GLGU.capitalize(note.getPureDirection()), true);
+                if (note.length == 0) {
+                    noteGroup.remove(note);
+                    note.remove();
+                    charPlayAnim(opponent, note.getPureDirection().toLowerCase());
+                }
+
+                else {
+                    note.batchNote.remove();
+                    note.batchNote.visible = false;
+                    // note.removeChild(note.note);
+                    charPlayAnim(opponent, note.getPureDirection().toLowerCase());
+                    if (Conductor.songPosition >= note.time + note.length) {
+                        trace("delete sustain?");
+                        noteGroup.remove(note);
+                        note.remove();
+                    }
+                }
             }
 
-            if (note.time < Conductor.songPosition - 200) {
+            if (note.time + note.length < Conductor.songPosition - 200) {
                 noteGroup.remove(note);
                 note.remove();
             }

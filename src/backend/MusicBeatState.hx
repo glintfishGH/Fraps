@@ -73,7 +73,6 @@ class MusicBeatState extends Scene {
 		transitionSprite = new Bitmap(Tile.fromColor(0xFF000000, window.width, -window.height - 500, 1));
 
 		topLayerCamera.layerVisible = (layer) -> layer == Layers.layerTop;
-		addCamera(topLayerCamera, Layers.layerTop);
 
 		fps = new Text(DefaultFont.get());
         fps.scale(2);
@@ -87,8 +86,8 @@ class MusicBeatState extends Scene {
 		fps.text = "FPS: " + Main.ME.engine.fps + 
 				"\nMEMORY: " + Std.int(Main.ME.engine.mem.stats().totalMemory / 1048576) + "MBs" +
 				"\nTEXTURES: " + Main.ME.engine.mem.stats().textureCount +
-				"\nOBJECTS: " + objectsToUpdate.length;
-
+				"\nOBJECTS: " + objectsToUpdate.length + 
+				"\nOBJECTS IN CACHE: " + Lambda.count(Paths.graphicCache);
 		if (attachedSong != null)
 			Conductor.songPosition = attachedSong.position * 1000;
 
@@ -109,6 +108,7 @@ class MusicBeatState extends Scene {
         defaultSmooth = true;
 
 		scenesToUpdate.push(this);
+		addCamera(topLayerCamera, Layers.layerTop);
 	}
 
 	override function add(s:Object, layer:Int = -1, index:Int = -1) {
