@@ -1,3 +1,0 @@
-- Add alphabet
-- Add cameras
-	- Add UI

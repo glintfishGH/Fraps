@@ -4,7 +4,7 @@ import h2d.Tile;
 import h2d.Bitmap;
 
 /**
- * In testing. Not recommended to use.
+ * In testing. Extend FNFObject instead.
  */
 class Sprite extends Bitmap {
     public var offsetX:Float;

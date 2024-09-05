@@ -7,5 +7,5 @@
 -hl bin/hlc/main.c
 -main Main
 
--D windowTitle=FNF on Heaps
+-D windowTitle=Fraps
 -D windowSize=1280x720

@@ -1,23 +1,24 @@
+import sys.FileSystem;
 import glibs.GLogger;
-import hxd.Res;
-import hxd.clipper.Rect;
-import h2d.col.Collider;
-import glibs.GLDebugTools;
 import hxd.res.DefaultFont;
 import h2d.Text;
-import hxd.Math;
 import slide.easing.Expo;
 import slide.Slide;
 import glibs.GLGU;
 import h2d.Camera;
-import Note.NoteDir;
-import haxe.Json;
+import objects.Note;
+import objects.Note.NoteDir;
 import hxd.Key;
 import backend.*;
 import hxd.snd.Channel;
 import hxd.Window;
+import objects.NoteSpawner;
 
 class PlayState extends MusicBeatState {
+    // OUT OF STATE
+    static var songExists:Bool = false;
+    static var chartExists:Bool = false;
+    static var validChart:Bool = false;
 
     // DEBUG
     public static var offsetCharacter:String = "girlfriend";
@@ -27,152 +28,157 @@ class PlayState extends MusicBeatState {
     // SONG
     public static var inst:Channel;
     public static var vocals:Channel;
-    public var chart:Dynamic;
+    public static var vocals2:Channel;
+    public static var chart:Dynamic;
+    public static var chartMetadata:Dynamic;
     var chartNoteData:Array<Array<SongInfo.NoteData>> = [];
-    var chartSectionData:Array<SongInfo.SectionData> = [];
+    var chartEventData:Array<Array<SongInfo.Events>> = [];
 
     var sectionLength:Float = 2000;
     var scrollSpeed:Float = 1.3;
 
     // CHARACTERS
-    private var boyfriend:Character;
+    private var player:Character;
     private var girlfriend:Character;
     private var opponent:Character;
 
     // STRUMS
+    var strumX:Float = 42;
+    var strumY:Float = 50;
     var noteDirs = ["Left", "Down", "Up", "Right"];
     public var playerStrumGroup:Array<Strumnote> = [];
     public var opponentStrumGroup:Array<Strumnote> = [];
 
     // NOTES
+    var maxNotes:Int = 75;
     var noteSpawnerGroup:Array<NoteSpawner> = [];
     public var noteGroup:Array<Note> = [];
 
-    public static var instance:PlayState;
+    public static var ME:PlayState;
 
     var wall:Stage;
     var curtains:Stage;
     var floor:Stage;
 
-    var camGame:Camera;
-    var camHUD:Camera;
+    var camGame:Camera = new Camera();
+    var camHUD:Camera = new Camera();
 
     var debugText:Text;
 
-    var trueStep:Int;
+    public var downscroll:Bool = true;
 
     public function new() {
         super();
-        instance = this;
+        ME = this;
 
         loadSong();
 
-        camera.setAnchor(0.5, 0.5);
-        camera.setScale(0.8, 0.8);
+        camera.layerVisible = (layer) -> layer == Layers.layerNul;
+
+        camHUD.layerVisible = (layer) -> layer == Layers.layerUI;
+        camGame.layerVisible = (layer) -> layer == Layers.layerGame;
+        addCamera(camGame);
+        addCamera(camHUD);
+
+        camGame.setAnchor(0.5, 0.5);
+        camGame.setScale(0.8, 0.8);
 
         debugText = new Text(DefaultFont.get());
         debugText.setScale(5);
 
-        chart = Json.parse(sys.io.File.getContent("res/songs/" + curSong + "/chart.json".toLowerCase()));
+        chart = Paths.parseChart(curSong);
+        chartMetadata = Paths.parseMetadata(curSong);
+        trace(chartMetadata);
 
-        wall = new Stage(0, 0, Paths.image("images/week1/wall"));
-        addChild(wall);
+        wall = new Stage(0, 0, Paths.image("week1/wall"));
+        // addObj(wall);
 
-        floor = new Stage(0, 1020, Paths.image("images/week1/floor"));
-        addChild(floor);
+        floor = new Stage(0, 1020, Paths.image("week1/floor"));
+        addObj(floor);
 
-        // girlfriend = new Character(0, 0, Paths.image("characters/girlfriend"), "res/characters/girlfriend");
-        // girlfriend.playAnimation("bopLeft");
-        // addChild(girlfriend);
+        girlfriend = new Character(1000, 400, Paths.image("characters/girlfriend"));
+        addObj(girlfriend);
 
-        boyfriend = new Character(1555, 800, Paths.image("characters/BOYFRIEND"), "res/characters/BOYFRIEND");
-        addChild(boyfriend);
+        player = new Character(1555, 800, Paths.image("characters/BOYFRIEND"));
+        addObj(player);
 
-        opponent = new Character(705, 415, Paths.image("characters/DADDY_DEAREST"), "res/characters/DADDY_DEAREST");
-        addChild(opponent);
+        opponent = new Character(705, 415, Paths.image("characters/DADDY_DEAREST"));
+        addObj(opponent);
 
-        curtains = new Stage(0, 0, Paths.image("images/week1/curtains"));
+        curtains = new Stage(0, 0, Paths.image("week1/curtains"));
         curtains.setScrollFactor(2, 2);
-        addChild(curtains);
+        // addObj(curtains);
+
+        if (downscroll) strumY = Window.getInstance().height - 150;
 
         for (i in 0...4) {
-            var opponentStrum = new Strumnote(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", noteDirs[i]);
-            var strumWidth = opponentStrum.animations.get("staticLeft")[0].width;
-            opponentStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
-            opponentStrum.x -= 410.5;
+            var opponentStrum = new Strumnote(0, strumY, noteDirs[i]);
+            opponentStrum.x += 160 * 0.7 * i;
+            opponentStrum.x += 50;
             opponentStrumGroup.push(opponentStrum);
-            addChild(opponentStrumGroup[i]);
+            addObj(opponentStrumGroup[i], Layers.layerUI);
 
             var noteSpawner:NoteSpawner = new NoteSpawner(opponentStrum);
+            noteSpawner.ID = i;
+            noteSpawner.scrollSpeed = 2.3;
             noteSpawnerGroup.push(noteSpawner);
         }
 
         for (i in 0...4) {
-            var playerStrum = new Strumnote(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets", noteDirs[i]);
-            // playerStrum.setScrollFactor(2, 2);
-            var strumWidth = playerStrum.animations.get("staticLeft")[0].width;
-            playerStrum.x = Window.getInstance().width / 2 - strumWidth * 1.5 + strumWidth * i;
-            playerStrum.x += 260;
+            var playerStrum = new Strumnote(0, strumY, noteDirs[i]);
+            playerStrum.x += 160 * 0.7 * i;
+            playerStrum.x += 50 + Window.getInstance().width / 2;
             playerStrumGroup.push(playerStrum);
-            addChild(playerStrumGroup[i]);
+            addObj(playerStrumGroup[i], Layers.layerUI);
 
             var noteSpawner:NoteSpawner = new NoteSpawner(playerStrum);
+            noteSpawner.ID = i + 4;
+            noteSpawner.scrollSpeed = 3;
             noteSpawnerGroup.push(noteSpawner);
         }
     
-        for (noteSpawner in noteSpawnerGroup) {
-            addChild(noteSpawner);
+        for (i => noteSpawner in noteSpawnerGroup) {
+            add(noteSpawner, Layers.layerUI);
         }
 
         GLGU.startStamp("Starting note generation. . .");
-        Conductor.changeBPM(chart.song.bpm);
+        Conductor.changeBPM(chartMetadata.timeChanges[0].bpm);
+        
+        var noteCorrection:Array<Int> = [4, 5, 6, 7, 0, 1, 2, 3];
 
-        for (i in 0...chart.song.notes.length) {
+        for (i in 0...chart.notes.normal.length) {
             /**
              * Current section we're parsing.
              */
-            var curSection:Dynamic = chart.song.notes[i];
+            var curSection:Dynamic = chart.notes.normal[i];
 
-            /**
-             * Pass in data from `curSection` into a sectionData that we'll push to `chartSectionData`.
-             * We don't pass in the notes because those have to be handled differently.
-             */
-            var sectionData:SongInfo.SectionData = {
-                lengthInSteps: curSection.lengthInSteps,
-                bpm: curSection.bpm,
-                mustHitSection: curSection.mustHitSection,
-                changeBPM: curSection.changeBPM,
-                altAnim: curSection.altAnim
-            };
+            var noteDataArray:Array<SongInfo.NoteData> = [];
+            
+            var noteTime:Dynamic = curSection.t;
+            var noteStrum:Dynamic = noteCorrection[curSection.d]; // great format
+            var noteSustainLength:Dynamic = curSection.l;
 
-            chartSectionData.push(sectionData);
+            noteDataArray.push({time: noteTime, strum: noteStrum, sustainLength: noteSustainLength});
+            chartNoteData.push(noteDataArray);
+        }
 
-            /**
-             * Parse the sectionNotes in `curSection`
-             */
-            for (i in 0...curSection.sectionNotes.length) {
-                /**
-                 * Indicates [note.time, note.strum, note.sustainLength]
-                 */
-                var notesArray = curSection.sectionNotes[i];
+        // trace(chart.events.length);
 
-                /**
-                 * The array we'll be pushing to `chartNoteData`.
-                 */
-                var noteDataArray:Array<SongInfo.NoteData> = [];
-           
-                /**
-                 * Gets the time, strum and sustainLength of the currently parsed note.
-                 */
-                var noteTime:Dynamic = notesArray[0];
-                var noteStrum:Dynamic = notesArray[1];
-                var noteSustainLength:Dynamic = notesArray[2];
+        for (i in 0...chart.events.length) {
+            var curEvent:Dynamic = chart.events[i];
+            if (curEvent.e == "FocusCamera") {
+                var eventArray:Array<SongInfo.Events> = [];
 
-                if (sectionData.mustHitSection) noteStrum += 4;
-
-                noteDataArray.push({time: noteTime, strum: noteStrum, sustainLength: noteSustainLength});
-                chartNoteData.push(noteDataArray);
+                var time:Float = curEvent.t;
+                // var event:String = curEvent.e;
+    
+                var duration:Float = curEvent.v.duration;
+                var character:Int = curEvent.v.char;
+    
+                eventArray.push({duration: duration, character: character, time: time});
+                chartEventData.push(eventArray);
             }
+            // trace(chartEventData);
         }
 
         /**
@@ -180,85 +186,67 @@ class PlayState extends MusicBeatState {
          * This makes note generation smooth.
          */
         chartNoteData.sort((array1, array2) -> Std.int(array1[0].time - array2[0].time));
-        // trace(chartNoteData);
+
+        trace(Conductor.bpm);
 
         GLGU.endStamp();
-        scrollSpeed = chart.song.speed * 1.35;
 
-        camera.x = wall.getSize().width / 2;
-        camera.y = wall.getSize().height / 2;
+        camGame.x = wall.getSize().width / 2;
+        camGame.y = wall.getSize().height / 2;
 
-        moveCamera();
+        // add(debugText, Layers.layerUI);
+    }
 
-        // Ass code but it works for now
-        // All this does it make the notes appear when spawned, since they dont play their animation instantly
-        noteHit(playerStrumGroup, "Left", 0);
-        noteHit(playerStrumGroup, "Down", 1);
-        noteHit(playerStrumGroup, "Up", 2);
-        noteHit(playerStrumGroup, "Right", 3);
-        noteHit(opponentStrumGroup, "Left", 0);
-        noteHit(opponentStrumGroup, "Down", 1);
-        noteHit(opponentStrumGroup, "Up", 2);
-        noteHit(opponentStrumGroup, "Right", 3);
-
-        addChild(debugText);
+    function endSong() {
+        camera.layerVisible = (layer) -> layer == Layers.layerGame;
+        changeScene(new MainMenuState());
     }
 
     override function update(dt:Float) {
         super.update(dt);
-        Slide.step(dt);
 
-        boyfriend.update(dt);
-        opponent.update(dt);
-
-        for (strum in opponentStrumGroup) {
-            strum.update(dt);
+        if (Conductor.songPosition == inst.duration * 1000) {
+            endSong();
         }
 
-        debugText.text = 'curStep: $curStep\ntrueStep: $trueStep\ncurBeat: $curBeat\ncurSection: $curSection\ngoodStepOffset: ${Conductor.curStepOffset}';
+        for (key in noteDirs) {
+            if (controls.keyPressed(key.toLowerCase())) {
+
+                /**
+                 * FIXME: This code only gets run when theres at least one note that exists. 
+                 *        This has the side-effect of making the strums not play their miss animation at the start of high erect.
+                */
+                for (note in noteGroup) {
+                    if (note.time - Conductor.songPosition >= -300 
+                        && note.time - Conductor.songPosition < 150
+                        && note.noteDirection == "note" + GLGU.capitalize(key) 
+                        && note.parentSpawner.ID > 3) {
+                            charPlayAnim(player, key.toLowerCase());
+                            noteHit(playerStrumGroup, GLGU.capitalize(note.getPureDirection()), true); 
+                            noteGroup.remove(note);
+                            note.remove();
+                            break;
+                    }
+                    else {
+                        noteHit(playerStrumGroup, GLGU.capitalize(key), false);
+                    }
+                }
+                charPlayAnim(player, key.toLowerCase());
+            }
+        }
+
+        debugText.text = 'curStep: $curStep\ncurBeat: $curBeat\ncurSection: $curSection\ngoodStepOffset: ${Conductor.curStepOffset}';
 
         if (Key.isDown(Key.Q)) {
-            camera.setScale(camera.scaleX - 0.01, camera.scaleY - 0.01);
+            camHUD.setScale(camHUD.scaleX - 0.01, camHUD.scaleY - 0.01);
         }
         if (Key.isDown(Key.E)) {
-            camera.setScale(camera.scaleX + 0.01, camera.scaleY + 0.01);
+            camHUD.setScale(camHUD.scaleX + 0.01, camHUD.scaleY + 0.01);
         }
-
-        if (Key.isDown(Key.A)) {
-            camera.x -= 10;
-        }
-        if (Key.isDown(Key.D)) {
-            camera.x += 10;
-        }
-        if (Key.isDown(Key.W)) {
-            camera.y -= 10;
-        }
-        if (Key.isDown(Key.S)) {
-            camera.y += 10;
-        }
-
-        // if (Key.isDown(Key.LEFT)) {
-        //     curtains.offsetX -= 10;
-        // }
-        // if (Key.isDown(Key.RIGHT)) {
-        //     curtains.offsetX += 10;
-        // }
-        // if (Key.isDown(Key.UP)) {
-        //     curtains.offsetY -= 10;
-        // }
-        // if (Key.isDown(Key.DOWN)) {
-        //     curtains.offsetY += 10;
-        // }
-
-        curtains.update(dt);
-        // trace(dt);
-
-        // trace("Song progression: " + Conductor.songPosition / inst.duration / 1000);
-
-        // trace(curSection, chartSectionData[curSection].sectionNotes);
 
         if (chartNoteData.length != 0) {
-            if (chartNoteData[0][0].time - camera.y - (camera.viewportHeight / camera.scaleY) <= Conductor.songPosition) {
+            // Check if the note is off screen, then spawn it. Prevents the notes from spawning too early and having them clip into existence.
+            if (chartNoteData[0][0].time - camHUD.y - (camHUD.viewportHeight / camHUD.scaleY) <= Conductor.songPosition && noteGroup.length <= maxNotes) {
                 var noteDir:NoteDir = LEFT;
                 var noteToSpawn = chartNoteData[0][0];
     
@@ -275,26 +263,39 @@ class PlayState extends MusicBeatState {
                 
                 var spawnerToTarget:Int = noteToSpawn.strum;
                 var noteTime:Float = noteToSpawn.time;
+                var sustainLength:Int = noteToSpawn.sustainLength;
     
-                // trace(noteSpawnerGroup[spawnerToTarget], spawnerToTarget, noteDir, noteTime);
-                if (noteSpawnerGroup[spawnerToTarget] != null)
-                    noteSpawnerGroup[spawnerToTarget].spawnNote(noteDir, noteTime);
+                if (noteSpawnerGroup[spawnerToTarget] != null) noteSpawnerGroup[spawnerToTarget].spawnNote(noteDir, noteTime, sustainLength);
+
                 chartNoteData.remove(chartNoteData[0]);
+            }
+            // else {
+            //     var lastNote:Note = noteGroup.pop();
+            //     chartNoteData.push([{time: lastNote.time, strum: lastNote.ID, sustainLength: lastNote.length}]);
+            //     trace("removed note?");
+            //     chartNoteData.sort((array1, array2) -> Std.int(array1[0].time - array2[0].time));
+            // }
+        }
+
+        if (chartEventData.length != 0) {
+            if (chartEventData[0][0].time <= Conductor.songPosition) {
+                trace("moving camera");
+                trace(chartEventData[0][0].time, Conductor.songPosition);
+                moveCamera();
+                chartEventData.remove(chartEventData[0]);
             }
         }
 
         handleInputs();
-        moveNotes();
-    }
-    
-    function noteHit(strum:Array<Strumnote>, direction:String, note:Int, ?goodHit:Bool) {
-        strum[note].playStrumAnim(direction, goodHit);
-        // strum == playerStrumGroup ? boyfriend.playAnim(note) : opponent.playAnim(note);
+        moveNotes(dt);
     }
 
-    function charPlayAnim(char:Character, animToPlay:String) {
-        // char.playingAnim = true;
-        char.playAnimation(animToPlay);
+    override function stepHit() {
+        super.stepHit();
+        if (curStep % 8 == 0) {
+            player.dance();
+            opponent.dance();
+        }
     }
 
     override function beatHit() {
@@ -303,44 +304,58 @@ class PlayState extends MusicBeatState {
 
     override function sectionHit() {
         super.sectionHit();
-        chartSectionData.remove(chartSectionData[0]);
-        boyfriend.dance();
-        opponent.dance();
-        moveCamera();
         resyncVocals();
+    }
+    
+    function noteHit(strums:Array<Strumnote>, direction:String, ?goodHit:Bool) {
+        for (strum in strums) {
+            if (strum.noteToDisplay == direction) strum.playStrumAnim(GLGU.capitalize(direction), goodHit);
+        }
+    }
+
+    function charPlayAnim(char:Character, animToPlay:String) {
+        char.playAnimation(animToPlay);
     }
 
     function moveCamera() {
-        if (chartSectionData.length != 0) {
-            var cameraTarget:Character = (chartSectionData[0].mustHitSection) ? boyfriend : opponent;
+        if (chartEventData.length != 0) {
+            var cameraTarget:Character;
+            cameraTarget = switch(chartEventData[0][0].character) {
+                case 0:
+                    player;
+                case 1:
+                    opponent;
+                case 2:
+                    girlfriend;
+                case _:
+                    player; // Why is this needed?
+            };
 
-            Slide.tween(camera)
-            .to({x: cameraTarget.x + cameraTarget.getSize().width / 2, y: cameraTarget.y + cameraTarget.getSize().height / 2}, 1.9)
+            Slide.stop(camGame);
+            Slide.tween(camGame)
+            .to({x: cameraTarget.x + cameraTarget.getSize().width / 2, y: cameraTarget.y + cameraTarget.getSize().height / 2}, chartEventData[0][0].duration)
             .ease(Expo.easeOut)
             .start();
         }
     }
 
-    override function stepHit() {
-        trueStep++;
-        // trace(curStep, trueStep);
-
-        super.stepHit();
-    }
-
-    function loadSong(?path:String) {
-        inst = Paths.song("songs/" + curSong + "/inst".toLowerCase());
-        inst.position = 0;
+    function loadSong() {
+        inst = Paths.song(curSong + "/inst".toLowerCase());
+        inst.position = -5000;
         inst.pause = false;
 
-        vocals = Paths.song("songs/" + curSong + "/voices".toLowerCase());
-        vocals.position = 0;
+        vocals = Paths.song(curSong + "/voices-opp".toLowerCase());
+        vocals.position = inst.position;
         vocals.pause = false;
+
+        vocals2 = Paths.song(curSong + "/voices-boy".toLowerCase());
+        vocals2.position = inst.position;
+        vocals2.pause = false;
 
         attachedSong = inst;
     }
 
-    function generateStrums(character:Character) {
+    function generateStrum(character:Character) {
         // var strumGroup:Array<Strumnote> = [];
 
         // var characterStrum:Strumnote = new Strumnote(0, 0, Paths.image("images/gameplay/NOTE_assets"), "res/images/gameplay/NOTE_assets");
@@ -366,72 +381,55 @@ class PlayState extends MusicBeatState {
     }
 
     function handleInputs() {
-        if (Key.isPressed(Key.LEFT)) {
-            charPlayAnim(boyfriend, "left");
-            noteHit(playerStrumGroup, "Left", 0);            
-        }
-        if (Key.isPressed(Key.DOWN)) {
-            charPlayAnim(boyfriend, "down");
-            noteHit(playerStrumGroup, "Down", 1);
-        }
-        if (Key.isPressed(Key.UP)) {
-            charPlayAnim(boyfriend, "up");
-            noteHit(playerStrumGroup, "Up", 2);
-        }
-
-        if (Key.isPressed(Key.RIGHT)) {
-            charPlayAnim(boyfriend, "right");
-            noteHit(playerStrumGroup, "Right", 3);            
-        }
-
-        if (Key.isPressed(Key.SPACE)) {
-            inst.stop();
-            inst.position = 0;
-            vocals.stop();
-            vocals.position = 0;
-            changeScene(new PlayState());
+        /**
+         * Pauses the song.
+         */
+        if (controls.keyPressed("back")) {
+            inst.pause = !inst.pause;
+            vocals.pause = !vocals.pause;
+            vocals2.pause = !vocals2.pause;
+            Conductor.songPosition = inst.position * 1000;
         }
     }
 
-    function moveNotes() {
+    function moveNotes(?dt:Float) {
         for (note in noteGroup) {
-            note.y = note.parentSpawner.attachedStrum.y + (note.time - Conductor.songPosition) * 0.45 * scrollSpeed /*+ vocals.position * 1000 - note.time*/;
+            var notePos:Float = (note.time - Conductor.songPosition) * 0.45 * note.scrollSpeed;
+            note.y = note.parentSpawner.attachedStrum.y;
+            note.y += (!downscroll) ? notePos : -notePos;
             note.x = note.parentSpawner.attachedStrum.x;
 
-            if (Conductor.songPosition - note.time >= note.parentSpawner.attachedStrum.y) {
+            if (Conductor.songPosition >= note.time && note.ID < 4) {
                 noteGroup.remove(note);
                 note.remove();
 
-                // trace("hit note at time " + note.time, Conductor.songPosition);
-                
-                if (note.parentSpawner == noteSpawnerGroup[0]) {
-                    charPlayAnim(opponent, "left");
-                    noteHit(opponentStrumGroup, "Left", 0, true);
-                }
-                if (note.parentSpawner == noteSpawnerGroup[1]) {
-                    charPlayAnim(opponent, "down");
-                    noteHit(opponentStrumGroup, "Down", 1, true);
-                }
-                if (note.parentSpawner == noteSpawnerGroup[2]) {
-                    charPlayAnim(opponent, "up");
-                    noteHit(opponentStrumGroup, "Up", 2, true);
-                }
-                if (note.parentSpawner == noteSpawnerGroup[3]) {
-                    charPlayAnim(opponent, "right");
-                    noteHit(opponentStrumGroup, "Right", 3, true);
-                }
-                
-                // vocals.position = note.time / 1000;
-                // inst.position = note.time / 1000;
-
-                // These should all be the same
-                // trace(note.time + (vocals.position * 1000 - note.time), Std.int(vocals.position * 1000), Std.int(inst.position * 1000));
+                charPlayAnim(opponent, note.getPureDirection().toLowerCase());
+                noteHit(opponentStrumGroup, GLGU.capitalize(note.getPureDirection()), true);
             }
 
-            if (note.y < note.parentSpawner.attachedStrum.y - 500) {
+            if (note.time < Conductor.songPosition - 200) {
                 noteGroup.remove(note);
                 note.remove();
             }
         }
+    }
+
+    public static function assetCheck():Bool {
+        if (FileSystem.exists(Paths.songCheck(curSong + "/inst".toLowerCase())) &&
+            FileSystem.exists(Paths.songCheck(curSong + "/voices-boy".toLowerCase()))) {
+                songExists = true;
+        }
+
+        if (Paths.parseChart(curSong) != null) chartExists = true;
+
+        chart = Paths.parseChart(curSong);
+
+        if (chart.version == "2.0.0" && chart.notes.nightmare.length != 0) validChart = true;
+
+        if (songExists && chartExists && validChart)
+            return true;
+
+        GLogger.error('Asset check failed\nSong - $songExists\nChart - $chartExists\nValidChart - $validChart');
+        return false;
     }
 }

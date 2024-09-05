@@ -54,7 +54,7 @@ class AlphabetChar extends AnimatedSprite {
     public var char:String;
     
     public function new(char:String) {
-        super(0, 0, Paths.image("alphabet"), "res/images/alphabet");
+        super(0, 0, Paths.image("alphabet"));
 
         this.char = char;
 

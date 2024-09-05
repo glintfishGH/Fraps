@@ -1,11 +1,4 @@
-import glibs.GLDebugTools;
 import glibs.GLogger;
-import sys.FileSystem;
-import haxe.io.BytesData;
-import haxe.io.Bytes;
-import hxd.res.DefaultFont;
-import h2d.Text;
-import h2d.Scene;
 import backend.MusicBeatState;
 import hxd.Window;
 import hxd.Key;
@@ -31,46 +24,62 @@ class Main extends App {
 		soundManager = Manager.get();
         soundManager.masterVolume = 0.5;
 
+		// Run init
 		new Main();
-
-		Window.getInstance().addEventTarget(function (event) {
-			if (event.keyCode == Key.NUMPAD_SUB) {
-				managerMasterVolume(-0.1);
-			}
-			if (event.keyCode == Key.NUMPAD_ADD) {
-				managerMasterVolume(0.1);
-			}
-		});
 	}
 
 	override function init() {
 		super.init();
-		trace("ran first init");
+		trace("Running first init");
+
 		ME = this;
 
-		setScene(new TitleState());
+		// Reroute the trace function to use GLogger.
+		// Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos) 
+		// 	GLogger.general(v);
+
+		/**
+		 * FIXME: This checks if the key is down, not if it's been pressed.
+		 */
+		Window.getInstance().addEventTarget(function (event) {
+			if (event.keyCode == Key.NUMPAD_SUB) {
+				trace("decreasing volume");
+				managerMasterVolume(-0.1);
+			}
+			if (event.keyCode == Key.NUMPAD_ADD) {
+				trace("increasing volume");
+				managerMasterVolume(0.1);
+			}
+		});
+		Window.getInstance().vsync = false;
+
+		setScene(new Cache());
 	}
 
 	override function update(dt:Float) {
 		super.update(dt);
 		for (scene in MusicBeatState.scenesToUpdate) scene.update(dt);
 		for (object in MusicBeatState.objectsToUpdate) object.update(dt);
-		// MusicBeatState.update();
 	}
 
 	override function onResize() {
 		super.onResize();
+		
+		// Make sure windowInstance is up-to-date when resizing
+		MusicBeatState.windowInstance = Window.getInstance();
+	}
+
+	override function onContextLost() {
+		super.onContextLost();
 	}
 	
 	/**
 	 * Change the global volume.
-	 * TODO: Fix an issue where the volume change occurs twice. Seems to not be related to this though?
-	 * FIXME: Whatever you put into the volumeChange argument, it'll get divided by 2 to alleviate this issue^
 	 * @param volumeChange Amount to change the volume (0-1)
 	 */
 	static function managerMasterVolume(volumeChange:Float) {
 		GLogger.info("Changed master volume by " + volumeChange);
-		soundManager.masterVolume += volumeChange / 2;
+		soundManager.masterVolume += volumeChange;
 		if (soundManager.masterVolume <= 0) {
 			soundManager.masterVolume = 0;
 		}

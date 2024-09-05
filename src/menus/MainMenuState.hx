@@ -29,11 +29,11 @@ class MainMenuState extends MusicBeatState {
     public function new() {
         super();
 
-        bg = new Bitmap(Paths.image("images/mainMenu/menuBG"));
-        addChild(bg);
+        bg = new Bitmap(Paths.image("mainMenu/menuBG"));
+        addObj(bg);
 
         for (i in 0...3) {
-            var menuOption:AnimatedSprite = new AnimatedSprite(0, 50 + 225 * i, Res.images.mainMenu.mainMenu_png.toTile(), "res/images/mainMenu/mainMenu");
+            var menuOption:AnimatedSprite = new AnimatedSprite(0, 50 + 225 * i, Res.images.mainMenu.mainMenu_png.toTile());
             menuOption.addAnimation("idle", '${optionsArray[i]} small');
             menuOption.addAnimation("selected", '${optionsArray[i]}');
             menuOption.playAnimation("idle");
@@ -42,7 +42,7 @@ class MainMenuState extends MusicBeatState {
 
             menuOption.x = (Window.getInstance().width - menuOption.getBounds().width) / 2;
             menuOptions.push(menuOption);
-            addChild(menuOptions[i]);
+            addObj(menuOptions[i]);
         }
 
         moveSelection(NONE);
@@ -61,6 +61,7 @@ class MainMenuState extends MusicBeatState {
     }
 
     function moveSelection(direction:Direction) {
+        GLGU.playSound("scrollMenu");
         if (direction != NONE) direction == UP ? curSelected-- : curSelected++;
         for (i in 0...menuOptions.length) {
             /**

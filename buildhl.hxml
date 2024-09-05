@@ -4,8 +4,9 @@
 -lib slide
 
 -cp src
--hl FOH.hl
+-hl FRAPS.hl
 -main Main
 
--D windowTitle=FNF on Heaps
+-D windowTitle=Fraps
 -D windowSize=1280x720
+# -D hl-profile

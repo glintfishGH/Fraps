@@ -1,0 +1,23 @@
+{
+  "timeFormat": "ms",
+  "artist": "Mig",
+  "charter": "Also Mig!",
+  "playData": {
+    "album": "fagFucks1",
+    "previewStart": 0,
+    "previewEnd": 15000,
+    "stage": "vanilla",
+    "characters": {
+      "player": "bFag",
+      "girlfriend": "gf_fuckingdead",
+      "opponent": "notter"
+    },
+    "ratings": { "easy": 5, "normal": 8, "hard": 9 },
+    "difficulties": ["easy", "normal", "hard"],
+    "noteStyle": "funkin"
+  },
+  "songName": "workaround",
+  "timeChanges": [{ "d": 4, "n": 4, "t": -1, "bt": [4, 4, 4, 4], "bpm": 151 }],
+  "generatedBy": "Manually by Mig",
+  "version": "2.2.2"
+}

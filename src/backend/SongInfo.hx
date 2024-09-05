@@ -3,7 +3,7 @@ package backend;
 typedef NoteData = {
     var time:Float;
     var strum:Int;
-    var sustainLength:Float;
+    var sustainLength:Int;
 }
 
 typedef SectionData = {
@@ -14,10 +14,17 @@ typedef SectionData = {
     var changeBPM:Bool;
 }
 
+typedef Events = {
+    var time:Float;
+    @:optional var event:String;
+    var duration:Float;
+    var character:Int;
+}
+
 typedef SongInfo = {
     var sectionData:SectionData;
 
-    var boyfriend:String;
+    var player:String;
     var opponent:String;
     var girlfriend:String;
 

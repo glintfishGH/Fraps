@@ -3,42 +3,45 @@ import backend.Paths;
 import objects.AnimatedSprite;
 import h2d.Tile;
 
+using StringTools;
+
+/**
+ * Gonna document this later im tired.
+ */
 class Strumnote extends AnimatedSprite {
     public var noteToDisplay:String;
-    public var noteHoldTimer:Float;
 
+    public var noteHoldTimer:Float;
     private var notePressed:Bool;
 
-    public function new(x:Float, y:Float, ?image:Tile, ?xml:String, ?noteToDisplay:String) {
-        xml ?? "res/images/gameplay/NOTE_assets";
-        super(x, y, image, xml);
+    var noteOffsets:Map<String, Array<Int>> = [
+        "left"  => [-36, -36],
+        "down"  => [-36, -38],
+        "up"    => [-38, -37],
+        "right" => [-36, -36]
+    ];
+
+    public function new(x:Float, y:Float, noteToDisplay:String) {
+        image = Paths.image("gameplay/NOTE_assets"); // Change this if you want to use another note skin
+
+        super(x, y, image);
         this.x = x;
         this.y = y;
-        image ?? Paths.image("images/gameplay/NOTE_assets");
-        this.image = image;
         this.noteToDisplay = noteToDisplay;
-
-        xml += ".xml";
 
         animation.loop = false;
 
-        /**
-         * TODO: Change this so it doesnt load all the animations for each one note instance.
-         */
-        addAnimation("staticLeft", "arrowLEFT");
-        addAnimation("staticDown", "arrowDOWN");
-        addAnimation("staticUp", "arrowUP");
-        addAnimation("staticRight", "arrowRIGHT");
+        // addAnimation("staticLeft", "arrowLEFT");
+        addAnimation("static" + GLGU.capitalize(noteToDisplay), "arrow" + noteToDisplay.toUpperCase(), null, true);
 
-        addAnimation("missLeft", "left press");
-        addAnimation("missDown", "down press");
-        addAnimation("missUp", "up press");
-        addAnimation("missRight", "rightd press");
+        //addAnimation("missLeft", "left press");
+        addAnimation("miss" + GLGU.capitalize(noteToDisplay), noteToDisplay.toLowerCase() + " press");
 
-        addAnimation("hitLeft", "left confirm", [-36, -36]);
-        addAnimation("hitDown", "down confirm", [-36, -38]);
-        addAnimation("hitUp", "up confirm", [-38, -37]);
-        addAnimation("hitRight", "right confirm", [-36, -36]);
+        //addAnimation("hitLeft", "left confirm");
+        addAnimation( "hit" + GLGU.capitalize(noteToDisplay), noteToDisplay.toLowerCase() + " confirm", 
+                      noteOffsets.get(noteToDisplay.toLowerCase()) );
+
+        this.setScale(0.7);
     }
 
     override function update(dt:Float) {
@@ -53,7 +56,7 @@ class Strumnote extends AnimatedSprite {
     }
 
     public function playStrumAnim(direction:String, hit:Bool) {
-        hit ? playAnimation("hit" + direction) : playAnimation("static" + direction);
+        hit ? playAnimation("hit" + direction) : playAnimation("miss" + direction);
         noteHoldTimer = 0;
         notePressed = true;
     }

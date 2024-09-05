@@ -13,6 +13,13 @@ class GLogger {
         Sys.println(ansi(color) + message + escape());
     }
 
+    /**
+     * WARNING: Only one paramater can be traced.
+     */
+    public static function general(message:Dynamic) {
+        print(message, PINK);
+    }
+
     public static function info(message:Dynamic) {
         print("INFO: " + message, BLUE);
     }

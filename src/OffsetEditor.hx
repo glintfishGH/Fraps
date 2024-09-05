@@ -1,11 +1,8 @@
-import h2d.Camera;
 import hxd.res.DefaultFont;
 import h2d.Text;
 import hxd.Key;
 import h2d.Bitmap;
-import hxd.Res;
 import Character;
-import haxe.Json;
 import hxd.Window;
 import backend.*;
 
@@ -28,7 +25,7 @@ class OffsetEditor extends MusicBeatState {
 
 	public function new() {
         super();
-        var bg:Stage = new Stage(0, 0, Paths.image("images/week1/wall"));
+        var bg:Stage = new Stage(0, 0, Paths.image("week1/wall"));
         addChild(bg);
 
         var text:Text = new Text(DefaultFont.get());
@@ -36,7 +33,7 @@ class OffsetEditor extends MusicBeatState {
         text.setPosition(20, 20);
         addChild(text);
 
-        char = new Character(0, 0, Paths.image('characters/${PlayState.offsetCharacter}'), 'res/characters/${PlayState.offsetCharacter}');
+        char = new Character(0, 0, Paths.image('characters/${PlayState.offsetCharacter}'));
         for (anim in char.animations.keys()) {
             animList.push(anim);
         }

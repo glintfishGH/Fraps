@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with Funkin Packer v0.1.3 https://neeeoo.github.io/funkin-packer/
+-->
+<TextureAtlas imagePath="funkadelix.png" width="1102" height="1073">
+	<SubTexture name="LEFT ARROW GREY0000" x="831" y="163" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="DOWN ARROW GREY0000" x="287" y="892" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="UP ARROW GREY0000" x="688" y="861" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="RIGHT ARROW GREY0000" x="153" y="870" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="DOWN ARROW CONFIRM0000" x="3" y="712" width="147" height="156" frameX="-39" frameY="-35" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="DOWN ARROW CONFIRM0001" x="423" y="892" width="126" height="132" frameX="-50" frameY="-47" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="DOWN ARROW CONFIRM0002" x="716" y="571" width="134" height="142" frameX="-46" frameY="-42" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="DOWN ARROW CONFIRM0003" x="716" y="571" width="134" height="142" frameX="-46" frameY="-42" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="DOWN ARROW PRESS0000" x="953" y="311" width="125" height="131" frameX="-4" frameY="-5" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="DOWN ARROW PRESS0001" x="953" y="311" width="125" height="131" frameX="-4" frameY="-5" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="DOWN ARROW PRESS0002" x="287" y="892" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="DOWN ARROW PRESS0003" x="287" y="892" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="LEFT ARROW CONFIRM0000" x="683" y="262" width="145" height="157" frameX="-40" frameY="-34" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="LEFT ARROW CONFIRM0001" x="853" y="706" width="122" height="135" frameX="-52" frameY="-46" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="LEFT ARROW CONFIRM0002" x="683" y="422" width="132" height="146" frameX="-47" frameY="-40" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="LEFT ARROW CONFIRM0003" x="683" y="422" width="132" height="146" frameX="-47" frameY="-40" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="LEFT ARROW PRESS0000" x="978" y="706" width="121" height="135" frameX="-5" frameY="-5" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="LEFT ARROW PRESS0001" x="978" y="706" width="121" height="135" frameX="-5" frameY="-5" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="LEFT ARROW PRESS0002" x="831" y="163" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="LEFT ARROW PRESS0003" x="831" y="163" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="NOTE SPLASH0000" x="554" y="674" width="159" height="167" frameX="-75" frameY="-57" frameWidth="324" frameHeight="327"/>
+	<SubTexture name="NOTE SPLASH0001" x="464" y="3" width="224" height="256" frameX="-40" frameY="-9" frameWidth="324" frameHeight="327"/>
+	<SubTexture name="NOTE SPLASH0002" x="3" y="382" width="323" height="327" frameX="-0" frameY="-0" frameWidth="324" frameHeight="327"/>
+	<SubTexture name="NOTE SPLASH0003" x="688" y="844" width="1" height="1" frameX="-0" frameY="-0" frameWidth="324" frameHeight="327"/>
+	<SubTexture name="NOTE SPLASH 20000" x="329" y="674" width="222" height="215" frameX="-111" frameY="-89" frameWidth="464" frameHeight="381"/>
+	<SubTexture name="NOTE SPLASH 20001" x="329" y="382" width="351" height="289" frameX="-51" frameY="-39" frameWidth="464" frameHeight="381"/>
+	<SubTexture name="NOTE SPLASH 20002" x="3" y="3" width="458" height="376" frameX="-1" frameY="-1" frameWidth="464" frameHeight="381"/>
+	<SubTexture name="NOTE SPLASH 20003" x="688" y="844" width="1" height="1" frameX="-0" frameY="-0" frameWidth="464" frameHeight="381"/>
+	<SubTexture name="RIGHT ARROW CONFIRM0000" x="691" y="3" width="144" height="157" frameX="-41" frameY="-34" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="RIGHT ARROW CONFIRM0001" x="960" y="844" width="122" height="135" frameX="-52" frameY="-46" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="RIGHT ARROW CONFIRM0002" x="818" y="422" width="132" height="146" frameX="-47" frameY="-40" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="RIGHT ARROW CONFIRM0003" x="818" y="422" width="132" height="146" frameX="-47" frameY="-40" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="RIGHT ARROW PRESS0000" x="974" y="3" width="121" height="135" frameX="-5" frameY="-5" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="RIGHT ARROW PRESS0001" x="974" y="3" width="121" height="135" frameX="-5" frameY="-5" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="RIGHT ARROW PRESS0002" x="153" y="870" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="RIGHT ARROW PRESS0003" x="153" y="870" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="UP ARROW CONFIRM0000" x="153" y="712" width="147" height="155" frameX="-40" frameY="-36" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="UP ARROW CONFIRM0001" x="853" y="571" width="126" height="132" frameX="-50" frameY="-47" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="UP ARROW CONFIRM0002" x="716" y="716" width="134" height="142" frameX="-46" frameY="-42" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="UP ARROW CONFIRM0003" x="716" y="716" width="134" height="142" frameX="-46" frameY="-42" frameWidth="227" frameHeight="227"/>
+	<SubTexture name="UP ARROW PRESS0000" x="965" y="147" width="125" height="131" frameX="-4" frameY="-5" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="UP ARROW PRESS0001" x="965" y="147" width="125" height="131" frameX="-4" frameY="-5" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="UP ARROW PRESS0002" x="688" y="861" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="UP ARROW PRESS0003" x="688" y="861" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="blue0000" x="824" y="861" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="green0000" x="3" y="871" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+	<SubTexture name="long bit end_BLUE0000" x="423" y="1027" width="97" height="43" frameX="-0" frameY="-0" frameWidth="97" frameHeight="43"/>
+	<SubTexture name="long bit end_GREEN0000" x="137" y="1018" width="97" height="43" frameX="-0" frameY="-0" frameWidth="97" frameHeight="43"/>
+	<SubTexture name="long bit end_ORANGE0000" x="3" y="1019" width="97" height="43" frameX="-0" frameY="-0" frameWidth="97" frameHeight="43"/>
+	<SubTexture name="long bit end_PINK0000" x="953" y="445" width="97" height="43" frameX="-0" frameY="-0" frameWidth="97" frameHeight="43"/>
+	<SubTexture name="long bit_BLUE0000" x="552" y="992" width="97" height="75" frameX="-0" frameY="-0" frameWidth="97" frameHeight="75"/>
+	<SubTexture name="long bit_GREEN0000" x="831" y="311" width="97" height="75" frameX="-0" frameY="-0" frameWidth="97" frameHeight="75"/>
+	<SubTexture name="long bit_ORANGE0000" x="960" y="982" width="97" height="75" frameX="-0" frameY="-0" frameWidth="97" frameHeight="75"/>
+	<SubTexture name="long bit_PINK0000" x="691" y="163" width="97" height="75" frameX="-0" frameY="-0" frameWidth="97" frameHeight="75"/>
+	<SubTexture name="orange0000" x="838" y="3" width="133" height="141" frameX="-0" frameY="-0" frameWidth="133" frameHeight="141"/>
+	<SubTexture name="pink0000" x="554" y="844" width="131" height="145" frameX="-0" frameY="-0" frameWidth="131" frameHeight="145"/>
+</TextureAtlas>

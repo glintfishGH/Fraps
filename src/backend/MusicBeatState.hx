@@ -1,6 +1,8 @@
 package backend;
 
-import haxe.Timer;
+import h2d.Camera;
+import hxd.res.DefaultFont;
+import h2d.Text;
 import hxd.SceneEvents.InteractiveScene;
 import h2d.Scene;
 import h2d.Tile;
@@ -12,7 +14,6 @@ import h2d.Bitmap;
 import hxd.Window;
 import h2d.Object;
 import hxd.snd.Channel;
-import hxd.App;
 
 enum Axis {
 	X;
@@ -25,8 +26,21 @@ enum Style {
 	OUT;
 }
 
+/**
+ * `Scene` class with extra functionality. Extend this instead of `Scene`.
+ * Also contains helper functions
+ */
 class MusicBeatState extends Scene {
+	/**
+	 * Array of objects the game should update.
+	 * Updating is done in `Main`.
+	 */
 	public static var objectsToUpdate:Array<FNFObject> = [];
+
+	/**
+	 * Array of MusicBeatStates the game has to update.
+	 * Updating is done in `Main`.
+	 */
 	public static var scenesToUpdate:Array<MusicBeatState> = [];
 
 	private var curStep:Int = 0;
@@ -34,25 +48,47 @@ class MusicBeatState extends Scene {
 	private var curSection:Int = 0;
 	private var oldStep:Float;
 
+	var controls:Controls;
+
 	var timeOffset:Float = 0;
 	var stepOffset:Float = 0;
 
-
+	/**
+	 * Song the Conductor should use to calculate songPosition.
+	 */
 	public var attachedSong:Channel;
 
 	public static var windowInstance:Window = Window.getInstance();
 	var flashSprite:Bitmap;
 	var transitionSprite:Bitmap;
 
+	var topLayerCamera:Camera = new Camera();
+    var fps:Text;
+
 	public function new() {
 		super();
+		objectsToUpdate = [];
+		controls = new Controls();
 		flashSprite = new Bitmap(Tile.fromColor(0xFFFFFFFF, window.width, window.height, 1));
 		transitionSprite = new Bitmap(Tile.fromColor(0xFF000000, window.width, -window.height - 500, 1));
+
+		topLayerCamera.layerVisible = (layer) -> layer == Layers.layerTop;
+		addCamera(topLayerCamera, Layers.layerTop);
+
+		fps = new Text(DefaultFont.get());
+        fps.scale(2);
+        addObj(fps, Layers.layerTop);
+		
 		trace("Opened new scene.");
 	}
 
 	public function update(dt:Float) {
-        Slide.step(dt);
+        Slide.step(dt);	
+		fps.text = "FPS: " + Main.ME.engine.fps + 
+				"\nMEMORY: " + Std.int(Main.ME.engine.mem.stats().totalMemory / 1048576) + "MBs" +
+				"\nTEXTURES: " + Main.ME.engine.mem.stats().textureCount +
+				"\nOBJECTS: " + objectsToUpdate.length;
+
 		if (attachedSong != null)
 			Conductor.songPosition = attachedSong.position * 1000;
 
@@ -65,11 +101,6 @@ class MusicBeatState extends Scene {
 		}
 	}
 
-	override function addChild(s:Object) {
-		super.addChild(s);
-		// objectsToUpdate.push(s);
-	}
-
 	override function onAdd() {
 		super.onAdd();
 		GLogger.success("Added scene " + Type.getClassName(Type.getClass(this)).split('.').pop());
@@ -78,6 +109,27 @@ class MusicBeatState extends Scene {
         defaultSmooth = true;
 
 		scenesToUpdate.push(this);
+	}
+
+	override function add(s:Object, layer:Int = -1, index:Int = -1) {
+		GLogger.warning("Use addObj!");
+		super.add(s, layer, index);
+	}
+
+	override function addChild(s:Object) {
+		GLogger.warning("Use addObj!");
+		super.addChild(s);
+	}
+
+	/**
+	 * Adds an object to a specific layer. 
+	 * By default this layer is `Layers.layerGame`.
+	 * @param object The object to add.
+	 * @param layer This objects layer.
+	 */
+	function addObj(object:Object, ?layer:Int) {
+		if (layer == null) add(object, Layers.layerGame);
+		else add(object, layer);
 	}
 
 	@:noCompletion
@@ -99,9 +151,15 @@ class MusicBeatState extends Scene {
 			sectionHit();
 	}
 
+	// Should maybe remove this?
 	function sectionHit() {
 	}
 
+	/**
+	 * Set an objects position to the center of the screen.
+	 * @param object Object to target
+	 * @param axis Axis on which to 
+	 */
 	function screenCenter(object:Object, axis:Axis = XY) {
 		if (axis == X) {
 			object.x = (window.width - object.getSize().width) / 2;
@@ -114,13 +172,24 @@ class MusicBeatState extends Scene {
 		}
 	}
 
+	/**
+	 * Flashes the screen.
+	 * @param duration Duration of the flash. (Inconsistent?)
+	 * @param ease Ease out style. (Doesn't do anything)
+	 */
 	function flash(duration:Float, ?ease:EaseFunc) {
 		ease ?? Quart.easeInOut;
-		add(flashSprite);
+		addObj(flashSprite, Layers.layerTransition);
 		Slide.tween(flashSprite).to({alpha: 0}, duration).ease(Quad.easeOut).start();
 	}
 
-
+	/**
+	 * Change the current scene. Automatically disposes of the assets of the last scene.
+	 * Also removes all the objects in `objectsToUpdate` and removes `this` instance from `scenesToUpdate`
+	 * @param scene Which scene to transition to. (new PlayState());
+	 * @param transition Should do transition animation? (Unused)
+	 * @param dispose Dipose of the scene?
+	 */
 	public function changeScene(scene:InteractiveScene, transition:Bool = false, dispose:Bool = true) {
 		if (transition) {
 			doTransition(OUT, function() {

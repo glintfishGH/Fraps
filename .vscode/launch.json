@@ -2,6 +2,7 @@
 	"version": "0.2.0",
 	"configurations": [
         {
+            // "profileSamples" : 10000,
             "name": "HashLink",
             "request": "launch",
             "type": "hl",
