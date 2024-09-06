@@ -8,7 +8,7 @@ A brand new Friday Night Funkin' engine made exclusively for hardcoding. A major
 
 ## What is Heaps?
 
-Heaps is a cross-platform game engine built by Nicolas Cannasse, the original creator of the Haxe compiler and designer for the Haxe language.
+Heaps is a cross-platform game engine built by Nicolas Cannasse, the original creator of the Haxe compiler and designer of the Haxe language.
 
 Primarily used by Shiro Games, it is open source, but not community driven. Features are implemented as needed, so if something you want / need is not already part of Heaps, you will most likely need to implement it yourself.
 
