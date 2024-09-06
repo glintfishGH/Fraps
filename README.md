@@ -41,6 +41,7 @@ After installing Haxe and Hashlink, you will need to install Heaps and its depen
 
 Paste these into Command Prompt:
 
+- ``haxelib install heaps``
 - ``haxelib install hlopenal``
 - ``haxelib install hlsdl``
 - ``haxelib install hldx``
